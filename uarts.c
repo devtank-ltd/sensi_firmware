@@ -25,15 +25,10 @@ typedef struct
     uint16_t              pins;
     uint8_t               alt_func_num;
     uint8_t               irqn;
-    uint32_t              dma_addr;
-    uint8_t               dma_irqn;
-    uint8_t               dma_channel;
     uint8_t               priority;
 } uart_channel_t;
 
 static const uart_channel_t uart_channels[] = UART_CHANNELS;
-
-static volatile bool uart_doing_dma[UART_CHANNELS_COUNT] = {0};
 
 #define UART_2_ISR  usart2_isr
 
@@ -57,12 +52,6 @@ static void uart_setup(const uart_channel_t * channel)
     nvic_enable_irq(channel->irqn);
     usart_enable(channel->usart);
     usart_enable_rx_interrupt(channel->usart);
-
-    if (channel->dma_irqn)
-    {
-        nvic_set_priority(channel->dma_irqn, channel->priority);
-        nvic_enable_irq(channel->dma_irqn);
-    }
 }
 
 
@@ -80,23 +69,6 @@ static bool uart_getc(uint32_t uart, char* c)
     *c = usart_recv(uart);
 
     return ((*c) != 0);
-}
-
-
-
-static void process_serial(unsigned uart)
-{
-    if (uart >= UART_CHANNELS_COUNT)
-        return;
-
-    char c;
-
-    if (!uart_getc(uart_channels[uart].usart, &c))
-    {
-        return;
-    }
-
-    uart_ring_in(uart, &c, 1);
 }
 
 
@@ -148,30 +120,16 @@ void UART_2_ISR(void)
 }
 
 
-#ifdef STM32F0
-void usart3_4_isr(void)
-{
-    process_serial(1);
-    process_serial(2);
-}
-#else
-#error Requires handling for UART 3 and 4.
-#endif
-
 void uarts_setup(void)
 {
-    rcc_periph_clock_enable(RCC_DMA);
-
     for(unsigned n = 0; n < UART_CHANNELS_COUNT; n++)
         uart_setup(&uart_channels[n]);
 }
 
+
 bool uart_is_tx_empty(unsigned uart)
 {
     if (uart >= UART_CHANNELS_COUNT)
-        return false;
-
-    if (uart_doing_dma[uart])
         return false;
 
     uart = uart_channels[uart].usart;
@@ -180,12 +138,9 @@ bool uart_is_tx_empty(unsigned uart)
 }
 
 
-bool uart_dma_out(unsigned uart, char *data, int size)
+bool uart_out(unsigned uart, char c)
 {
     if (uart >= UART_CHANNELS_COUNT)
-        return false;
-
-    if (uart_doing_dma[uart])
         return false;
 
     const uart_channel_t * channel = &uart_channels[uart];
@@ -193,77 +148,9 @@ bool uart_dma_out(unsigned uart, char *data, int size)
     if (!(USART_ISR(channel->usart) & USART_ISR_TXE))
         return false;
 
-    if (size == 1)
-    {
-        if (uart)
-            log_debug(DEBUG_UART, "UART %u single out.", uart);
-        usart_send(channel->usart, *data);
-        return true;
-    }
-
     if (uart)
-        log_debug(DEBUG_UART, "UART %u %u out on DMA channel %u", uart, size, channel->dma_channel);
+        log_debug(DEBUG_UART, "UART %u single out.", uart);
 
-    uart_doing_dma[uart] = true;
-
-    SYSCFG_CFGR1 |= SYSCFG_CFGR1_USART3_DMA_RMP;
-
-    dma_channel_reset(DMA1, channel->dma_channel);
-
-    dma_set_peripheral_address(DMA1, channel->dma_channel, channel->dma_addr);
-    dma_set_memory_address(DMA1, channel->dma_channel, (uint32_t)data);
-    dma_set_number_of_data(DMA1, channel->dma_channel, size);
-    dma_set_read_from_memory(DMA1, channel->dma_channel);
-    dma_enable_memory_increment_mode(DMA1, channel->dma_channel);
-    dma_set_peripheral_size(DMA1, channel->dma_channel, DMA_CCR_PSIZE_8BIT);
-    dma_set_memory_size(DMA1, channel->dma_channel, DMA_CCR_MSIZE_8BIT);
-    dma_set_priority(DMA1, channel->dma_channel, DMA_CCR_PL_VERY_HIGH);
-
-    dma_enable_transfer_complete_interrupt(DMA1, channel->dma_channel);
-
-    dma_enable_channel(DMA1, channel->dma_channel);
-
-    usart_enable_tx_dma(channel->usart);
-
+    usart_send(channel->usart, c);
     return true;
-}
-
-
-static void process_complete_dma(void)
-{
-    unsigned found = 0;
-
-    for(unsigned n = 0; n < UART_CHANNELS_COUNT; n++)
-    {
-        const uart_channel_t * channel = &uart_channels[n];
-
-        if ((DMA1_ISR & DMA_ISR_TCIF(channel->dma_channel)) != 0)
-        {
-            DMA1_IFCR |= DMA_IFCR_CTCIF(channel->dma_channel);
-
-            uart_doing_dma[n] = false;
-
-            dma_disable_transfer_complete_interrupt(DMA1, channel->dma_channel);
-
-            usart_disable_tx_dma(channel->usart);
-
-            dma_disable_channel(DMA1, channel->dma_channel);
-            found++;
-        }
-    }
-
-    if (!found)
-        log_error("No DMA complete in ISR");
-}
-
-
-void dma1_channel4_7_dma2_channel3_5_isr(void)
-{
-    process_complete_dma();
-}
-
-
-void dma1_channel2_3_dma2_channel1_2_isr(void)
-{
-    process_complete_dma();
 }

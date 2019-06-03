@@ -16,23 +16,13 @@ typedef char dma_uart_buf_t[DMA_DATA_PCK_SZ];
 char uart_0_in_buf[UART_0_IN_BUF_SIZE];
 char uart_0_out_buf[UART_0_OUT_BUF_SIZE];
 
-char uart_1_in_buf[UART_1_IN_BUF_SIZE];
-char uart_1_out_buf[UART_1_OUT_BUF_SIZE];
-
-char uart_2_in_buf[UART_2_IN_BUF_SIZE];
-char uart_2_out_buf[UART_2_OUT_BUF_SIZE];
-
 char cmd_uart_buf_out[CMD_OUT_BUF_SIZE];
 
 static ring_buf_t ring_in_bufs[UART_CHANNELS_COUNT] = {
-    RING_BUF_INIT(uart_0_in_buf, sizeof(uart_0_in_buf)),
-    RING_BUF_INIT(uart_1_in_buf, sizeof(uart_1_in_buf)),
-    RING_BUF_INIT(uart_2_in_buf, sizeof(uart_2_in_buf))};
+    RING_BUF_INIT(uart_0_in_buf, sizeof(uart_0_in_buf))};
 
 static ring_buf_t ring_out_bufs[UART_CHANNELS_COUNT] = {
-    RING_BUF_INIT(uart_0_out_buf, sizeof(uart_0_out_buf)),
-    RING_BUF_INIT(uart_1_out_buf, sizeof(uart_1_out_buf)),
-    RING_BUF_INIT(uart_2_out_buf, sizeof(uart_2_out_buf))};
+    RING_BUF_INIT(uart_0_out_buf, sizeof(uart_0_out_buf))};
 
 static ring_buf_t cmd_ring_out_buf = RING_BUF_INIT(cmd_uart_buf_out, sizeof(cmd_uart_buf_out));
 
@@ -40,7 +30,6 @@ static usb_packet_t usb_out_packets[UART_CHANNELS_COUNT];
 
 static char command[CMD_LINELEN];
 
-static dma_uart_buf_t uart_dma_buf[UART_CHANNELS_COUNT];
 
 
 unsigned uart_ring_in(unsigned uart, const char* s, unsigned len)
@@ -136,12 +125,12 @@ static void uart_ring_in_drain(unsigned uart)
 }
 
 
-static unsigned _uart_out_dma(char * c, unsigned len, void * puart)
+static unsigned _uart_out(char * c, unsigned len __attribute__((unused)), void * puart)
 {
     unsigned uart = *(unsigned*)puart;
 
-    if (uart_dma_out(uart, c, len))
-        return len;
+    if (uart_out(uart, *c))
+        return 1;
     return 0;
 }
 
@@ -163,9 +152,9 @@ static void uart_ring_out_drain(unsigned uart)
         if (uart)
             log_debug(DEBUG_UART, "UART %u OUT %u", uart, len);
 
-        len = (len > DMA_DATA_PCK_SZ)?DMA_DATA_PCK_SZ:len;
+        char c;
 
-        ring_buf_consume(ring, _uart_out_dma, uart_dma_buf[uart], len, &uart);
+        ring_buf_consume(ring, _uart_out, &c, 1, &uart);
     }
 }
 

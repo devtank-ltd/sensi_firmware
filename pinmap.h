@@ -55,14 +55,12 @@ typedef struct
 #define PPS1_EXTI_ISR        exti4_15_isr
 
 
-#define UART_CHANNELS                                                                                                   \
-{                                                                                                                       \
-    { USART2, RCC_USART2, UART_2_SPEED, GPIOA, GPIO2  | GPIO3,  GPIO_AF1, NVIC_USART2_IRQ,   (uint32_t)&USART2_TDR, NVIC_DMA1_CHANNEL4_7_DMA2_CHANNEL3_5_IRQ, DMA_CHANNEL4, UART2_PRIORITY }, /* UART 0 */ \
-    { USART3, RCC_USART3, UART_3_SPEED, GPIOC, GPIO10 | GPIO11, GPIO_AF1, NVIC_USART3_4_IRQ, (uint32_t)&USART3_TDR, NVIC_DMA1_CHANNEL2_3_DMA2_CHANNEL1_2_IRQ, DMA_CHANNEL2, UART3_PRIORITY }, /* UART 1 */ \
-    { USART4, RCC_USART4, UART_4_SPEED, GPIOA, GPIO1  | GPIO0,  GPIO_AF4, NVIC_USART3_4_IRQ, (uint32_t)&USART4_TDR, NVIC_DMA1_CHANNEL4_7_DMA2_CHANNEL3_5_IRQ, DMA_CHANNEL7, UART4_PRIORITY }, /* UART 2 */ \
+#define UART_CHANNELS                                                                                                     \
+{                                                                                                                         \
+    { USART2, RCC_USART2, UART_2_SPEED, GPIOA, GPIO2  | GPIO3,  GPIO_AF1, NVIC_USART2_IRQ, UART2_PRIORITY }, /* UART 0 */ \
 }
 
-#define UART_CHANNELS_COUNT 3
+#define UART_CHANNELS_COUNT 1
 
 
 
