@@ -78,6 +78,21 @@
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
+
+
+static unsigned char stm32_spi_byte(unsigned char data)
+{
+    spi_send8(ADS1248_SPI, data);
+    return spi_read8(ADS1248_SPI);
+}
+
+
+static void stm32_delay()
+{
+    for(unsigned n = 0; n < 100000; n++)
+        asm("nop");
+}
+
 #endif
 
 void InitSPI(void)
@@ -268,21 +283,12 @@ void ADS1248AssertCS( int fAssert)
         GPIOPinWrite(NCS_PORT, ADS1248_CS, 0);
 #elif defined (STM32F0)
     if (fAssert){
-        stm32_delay(10000);
+        stm32_delay();
         gpio_set(ADS1248_PORT, ADS1248_SPI_CS_PIN);
     } else
         gpio_clear(ADS1248_PORT, ADS1248_SPI_CS_PIN);
 #endif
 }
-
-#ifdef STM32F0
-static unsigned char stm32_spi_byte(unsigned char data)
-{
-    spi_send8(ADS1248_SPI, data);
-    return spi_read8(ADS1248_SPI);
-}
-
-#endif
 
 
 void ADS1248SendByte(unsigned char Byte)
