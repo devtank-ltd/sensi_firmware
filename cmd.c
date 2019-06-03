@@ -9,6 +9,7 @@
 #include "uarts.h"
 #include "usb_uarts.h"
 #include "adcs.h"
+#include "adc_ex.h"
 #include "pulsecount.h"
 #include "inputs.h"
 #include "outputs.h"
@@ -29,6 +30,7 @@ typedef struct
 
 static void pps_cb();
 static void adc_cb();
+static void adcex_cb();
 static void input_cb();
 static void output_cb();
 static void count_cb();
@@ -41,6 +43,8 @@ static cmd_t cmds[] = {
     { "pps",      "Print pulse info.",       pps_cb},
     { "adc",      "Print ADC.",              adc_cb},
     { "adcs",     "Print all ADCs.",         adcs_log},
+    { "adcex",    "Print ADC EX.",           adcex_cb},
+    { "adcexs",   "Print all ADC EX.",       adcs_ex_log},
     { "inputs",   "Print all inputs.",       inputs_log},
     { "outputs",  "Print all outputs.",      outputs_log},
     { "input",    "Print input.",            input_cb},
@@ -66,6 +70,13 @@ void adc_cb()
 {
     unsigned adc = strtoul(rx_buffer + rx_pos, NULL, 10);
     adcs_adc_log(adc);
+}
+
+
+void adcex_cb()
+{
+    unsigned adc = strtoul(rx_buffer + rx_pos, NULL, 10);
+    adcs_ex_adc_log(adc);
 }
 
 
@@ -101,6 +112,7 @@ void count_cb()
     log_out("Inputs  : %u", inputs_get_count());
     log_out("Outputs : %u", outputs_get_count());
     log_out("ADCs    : %u", adcs_get_count());
+    log_out("ADCEXs  : %u", adcs_ex_get_count());
 }
 
 

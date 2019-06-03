@@ -5,6 +5,7 @@
 
 #include "config.h"
 #include "adcs.h"
+#include "adc_ex.h"
 #include "pulsecount.h"
 #include "inputs.h"
 #include "timers.h"
@@ -29,10 +30,12 @@ void tim2_isr(void)
     if (fast_sample_count == DEFAULT_SPS)
     {
         adcs_second_boardary();
+        adcs_ex_second_boardary();
         fast_sample_count = 0;
     }
 
     adcs_do_samples();
+    adcs_ex_do_samples();
     timer_clear_flag(TIM2, TIM_SR_CC1IF);
 }
 
