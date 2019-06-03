@@ -14,6 +14,7 @@
 #define USB_PRIORITY   2
 #define TIMER1_PRIORITY 2
 #define TIMER2_PRIORITY 1
+#define TIMER3_PRIORITY 3
 #define PPS_PRIORITY 1
 
 
@@ -24,6 +25,7 @@
 #define LOG_SPACER        "============="
 
 #define DEFAULT_SPS 120000
+#define DEFAULT_ADC_EX_SPS 5000
 
 #define CMD_OUT_BUF_SIZE 1024
 
