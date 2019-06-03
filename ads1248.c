@@ -65,11 +65,20 @@
 //
 //******************************************************************************
 
+#include "ads1248.h"
+
 /*
  * ======== Standard MSP430 includes ========
  */
+ 
+#ifdef __MSP430F5529__
 #include <msp430.h>
-#include "ads1248.h"
+#elif defined(STM32F0)
+#include "pinmap.h"
+#include <libopencm3/stm32/spi.h>
+#include <libopencm3/stm32/rcc.h>
+#include <libopencm3/stm32/gpio.h>
+#endif
 
 void InitSPI(void)
 {
@@ -99,6 +108,23 @@ void InitSPI(void)
     SSIAdvFrameHoldEnable(SPI_BASE);
     // clear out any 'junk' that may be in the SPI RX fifo.
     while(SSIDataGetNonBlocking(SPI_BASE, &dataRx));
+#elif defined (STM32F0)
+    rcc_periph_clock_enable(PORT_TO_RCC(ADS1248_PORT));
+    rcc_periph_clock_enable(ADS1248_RRC_SPI_CLK);
+
+    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, ADS1248_SPI_AF_GPIOs);
+    gpio_set_af(ADS1248_PORT, ADS1248_SPI_AF_GPIOS_F, ADS1248_SPI_AF_GPIOs);
+
+    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN);
+
+    spi_reset(ADS1248_SPI);
+    spi_init_master(ADS1248_SPI,
+                    ADS1248_SPI_DIVIDER,
+                    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+                    SPI_CR1_CPHA_CLK_TRANSITION_2,
+                    SPI_CR1_MSBFIRST);
+
+    spi_set_data_size(ADS1248_SPI, SPI_CR2_DS_8BIT);
 #endif
 }
 
@@ -125,6 +151,13 @@ void InitDevice(void)
     GPIOPinTypeGPIOInput(DRDY_PORT, ADS1248_DRDY);      // DRDY
     GPIOIntTypeSet(DRDY_PORT, ADS1248_DRDY, GPIO_FALLING_EDGE);   // GPIO_HIGH_LEVEL ?
     GPIOPinWrite(RESET_PORT,ADS1248_RESET, ADS1248_RESET);
+#elif defined (STM32F0)
+    rcc_periph_clock_enable(PORT_TO_RCC(ADS1248_DRDY_PORT));
+    rcc_periph_clock_enable(PORT_TO_RCC(ADS1248_START_PORT));
+    rcc_periph_clock_enable(PORT_TO_RCC(ADS1248_RESET_PORT));
+    gpio_mode_setup(ADS1248_DRDY_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADS1248_DRDY_PIN);
+    gpio_mode_setup(ADS1248_START_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, ADS1248_START_PIN);
+    gpio_mode_setup(ADS1248_RESET_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, ADS1248_RESET_PIN);
 #endif
 }
 
@@ -193,6 +226,23 @@ int ADS1248WaitForDataReady(int Timeout)
         // wait for /DRDY = 0
         while(nDRDY_REG);
         }
+#elif defined (STM32F0)
+    if (Timeout > 0)
+    {
+        // wait for /DRDY = 1 to make sure it is high before we look for the transition low
+        while (!gpio_get(ADS1248_DRDY_PORT, ADS1248_DRDY_PIN) && (Timeout-- >= 0));
+        // wait for /DRDY = 0
+        while ( gpio_get(ADS1248_DRDY_PORT, ADS1248_DRDY_PIN) && (Timeout-- >= 0));
+        if (Timeout < 0)
+            return ADS1248_ERROR;                   //ADS1248_TIMEOUT_WARNING;
+    }
+    else
+    {
+        // wait for /DRDY = 1
+        while (!gpio_get(ADS1248_DRDY_PORT, ADS1248_DRDY_PIN));
+        // wait for /DRDY = 0
+        while(gpio_get(ADS1248_DRDY_PORT, ADS1248_DRDY_PIN));
+    }
 #endif
 
     return ADS1248_NO_ERROR;
@@ -216,22 +266,41 @@ void ADS1248AssertCS( int fAssert)
         GPIOPinWrite(NCS_PORT, ADS1248_CS, 0xFF);
     } else
         GPIOPinWrite(NCS_PORT, ADS1248_CS, 0);
+#elif defined (STM32F0)
+    if (fAssert){
+        stm32_delay(10000);
+        gpio_set(ADS1248_PORT, ADS1248_SPI_CS_PIN);
+    } else
+        gpio_clear(ADS1248_PORT, ADS1248_SPI_CS_PIN);
 #endif
 }
 
+#ifdef STM32F0
+static unsigned char stm32_spi_byte(unsigned char data)
+{
+    spi_send8(ADS1248_SPI, data);
+    return spi_read8(ADS1248_SPI);
+}
+
+#endif
+
+
 void ADS1248SendByte(unsigned char Byte)
 {
-    char dummy;
 #if defined (__MSP430F5529__)
+    char dummy;
     dummy = UCB0RXBUF;
     while(!(UCB0IFG&UCTXIFG));          // Make sure nothing is already in the TX buffer
     UCB0TXBUF = Byte;                   // Send the passed Byte out the SPI bus
     while(!(UCB0IFG&UCRXIFG));          // Before returning wait until transmission is complete and clear the RX buffer
     dummy = UCB0RXBUF;
 #elif defined (PART_TM4C1294NCPDT)
+    char dummy;
     HWREG(SPI_BASE + SSI_O_DR) = Byte;                  // set up data for the next xmit
     while(!(HWREG(SPI_BASE + SSI_O_SR) & SSI_SR_RNE));  // wait for data to appear
     dummy = HWREG(SPI_BASE+SSI_O_DR);                   // grab that data
+#elif defined (STM32F0)
+    stm32_spi_byte(Byte);
 #endif
 }
 
@@ -250,6 +319,8 @@ unsigned char ADS1248ReceiveByte(void)
     HWREG(SPI_BASE + SSI_O_DR) = ADS1248_CMD_NOP;       // Send out NOP to initiate SCLK
     while(!(HWREG(SPI_BASE + SSI_O_SR) & SSI_SR_RNE));  // wait for data to appear
     Result = HWREG(SPI_BASE+SSI_O_DR);                  // grab that data
+#elif defined (STM32F0)
+    Result = stm32_spi_byte(0xFF);
 #endif
     return Result;
 }
@@ -368,10 +439,10 @@ void ADS1248WriteRegister(int StartAddress, int NumRegs, unsigned * pData)
 void ADS1248WriteSequence(int StartAddress, int NumRegs, unsigned * pData)
 {
     int i;
-    char dummy;
     // set the CS low
     ADS1248AssertCS(0);
 #if defined (__MSP430F5529__)
+    char dummy;
     // send the command byte
     dummy = UCB0RXBUF;
     while(!(UCB0IFG&UCTXIFG));          // Make sure nothing is already in the TX buffer
@@ -389,6 +460,7 @@ void ADS1248WriteSequence(int StartAddress, int NumRegs, unsigned * pData)
         dummy = UCB0RXBUF;
     }
 #elif defined (PART_TM4C1294NCPDT)
+    char dummy;
     HWREG(SPI_BASE + SSI_O_DR) = ADS1248_CMD_WREG | (StartAddress & 0x0f);  // set up data for the next xmit
     while(!(HWREG(SPI_BASE + SSI_O_SR) & SSI_SR_RNE));  // wait for data to appear
     dummy = HWREG(SPI_BASE+SSI_O_DR);                   // grab that data
@@ -402,7 +474,16 @@ void ADS1248WriteSequence(int StartAddress, int NumRegs, unsigned * pData)
         while(!(HWREG(SPI_BASE + SSI_O_SR) & SSI_SR_RNE));  // wait for data to appear
         dummy = HWREG(SPI_BASE+SSI_O_DR);                   // grab that data
     }
+#elif defined (STM32F0)
 
+    uint8_t cmd = ADS1248_CMD_WREG | (StartAddress & 0x0f);	// set up data for the next xmit
+    stm32_spi_byte(cmd);
+
+    cmd = (NumRegs-1) & 0x0f;
+    stm32_spi_byte(cmd);
+
+    for (i=0; i < NumRegs; i++)
+        stm32_spi_byte((unsigned char)pData[i]);
 #endif
     // set the CS back high
     ADS1248AssertCS(1);
@@ -1285,6 +1366,11 @@ int ADS1248SetStart(int nStart)
         GPIOPinWrite(START_PORT, ADS1248_START, 0xFF);
     else
         GPIOPinWrite(START_PORT, ADS1248_START, 0);
+#elif defined (STM32F0)
+    if (nStart)             // nStart=0 is START low, nStart=1 is START high
+        gpio_set(ADS1248_START_PORT, ADS1248_START_PIN);
+    else
+        gpio_clear(ADS1248_START_PORT, ADS1248_START_PIN);
 #endif
     return ADS1248_NO_ERROR;
 }
@@ -1306,6 +1392,11 @@ int ADS1248SetReset(int nReset)
         GPIOPinWrite(RESET_PORT, ADS1248_RESET, 0xFF);
     else
         GPIOPinWrite(RESET_PORT, ADS1248_RESET, 0);
+#elif defined (STM32F0)
+    if (nReset)             // nReset=0 is RESET low, nReset=1 is RESET high
+        gpio_set(ADS1248_RESET_PORT, ADS1248_RESET_PIN);
+    else
+        gpio_clear(ADS1248_RESET_PORT, ADS1248_RESET_PIN);
 #endif
     return ADS1248_NO_ERROR;
 }

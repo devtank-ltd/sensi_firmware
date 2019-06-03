@@ -63,6 +63,27 @@ typedef struct
 #define UART_CHANNELS_COUNT 1
 
 
+#define ADS1248_RRC_SPI_CLK     RCC_SPI1
+#define ADS1248_PORT            GPIOA
+
+#define ADS1248_SPI_AF_GPIOs    (GPIO5 | GPIO6 | GPIO7)
+#define ADS1248_SPI_AF_GPIOS_F  GPIO_AF0
+
+#define ADS1248_SPI_CS_PIN      GPIO9
+
+#define ADS1248_SPI             SPI1
+#define ADS1248_SPI_DIVIDER     SPI_CR1_BAUDRATE_FPCLK_DIV_8
+
+#define ADS1248_DRDY_PORT       GPIOA
+#define ADS1248_DRDY_PIN        GPIO8
+
+#define ADS1248_START_PORT      GPIOA
+#define ADS1248_START_PIN       GPIO10
+
+#define ADS1248_RESET_PORT      GPIOB
+#define ADS1248_RESET_PIN       GPIO10
+
+
 
 #define INPUTS_PORT_N_PINS              \
 {                                       \

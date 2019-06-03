@@ -42,7 +42,8 @@ SOURCES += main.c \
            timers.c \
            inputs.c \
            outputs.c \
-           ring.c
+           ring.c \
+           ads1248.c
 
 BUILD_DIR := build/
 PROJECT_NAME := firmware
