@@ -9,90 +9,90 @@ INPUTS={"name":"INPUT"}
 OUTPUTS={"name":"OUTPUT"}
 PPS={"name":"PPS"}
 UARTS={"name":"UART"}
-
+SPI={"name":"SPI"}
 
 CN7={
     "name": "CN7",
     1 : "PC10",
-    3 : "PC12",
-    5 : "-",
-    7 : "BOOT0",
-    9 : "-",
-    11 : "-",
-    13 : "PA13",
-    15 : "PA14",
-    17 : "PA15",
-    19 : "-",
-    21 : "PB7",
-    23 : "PC13",
-    25 : "PC14",
-    27 : "PC15",
-    29 : "PF0",
-    31 : "PF1",
-    33 : "-",
-    35 : "PC2",
-    37 : "PC3",
     2 : "PC11",
+    3 : "PC12",
     4 : "PD2",
-    6 : "-",
-    8 : "-",
-    10 : "-",
-    12 : "IOREF",
-    14 : "RESET",
-    16 : "-",
-    18 : "-",
-    20 : "-",
-    22 : "-",
-    24 : "-",
-    26 : "-",
+    5 : "-VDD-",
+    6 : "-E5V-",
+    7 : "BOOT0",
+    8 : "-GND-",
+    9 : "-NC-",
+    10 : "-NC-",
+    11 : "-NC-",
+    12 : "-IOREF-",
+    13 : "PA13",
+    14 : "-RESET-",
+    15 : "PA14",
+    16 : "-3V3-",
+    17 : "PA15",
+    18 : "-5V-",
+    19 : "-GND-",
+    20 : "-GND-",
+    21 : "PB7",
+    22 : "-GND-",
+    23 : "PC13",
+    24 : "-VIN-",
+    25 : "PC14",
+    26 : "-NC-",
+    27 : "PC15",
     28 : "PA0",
+    29 : "PF0",
     30 : "PA1",
+    31 : "PF1",
     32 : "PA4",
+    33 : "-VBAT-",
     34 : "PB0",
+    35 : "PC2",
     36 : "PC1",
+    37 : "PC3",
     38 : "PC0",
 }
 
 CN10={
     "name": "CN10",
     1 : "PC9"  ,
-    3 : "PB8"  ,
-    5 : "PB9"  ,
-    7 : "-"    ,
-    9 : "-"    ,
-    11 : "PA5" ,
-    13 : "PA6" ,
-    15 : "PA7" ,
-    17 : "PB6" ,
-    19 : "PC7" ,
-    21 : "PA9" ,
-    23 : "PA8" ,
-    25 : "PB10",
-    27 : "PB4" ,
-    29 : "PB5" ,
-    31 : "PB3" ,
-    33 : "PA10",
-    35 : "PA2" ,
-    37 : "PA3"  ,
     2 : "PC8"  ,
+    3 : "PB8"  ,
     4 : "PC6"  ,
+    5 : "PB9"  ,
     6 : "PC5"  ,
-    8 : "-"    ,
-    10 : "-"   ,
+    7 : "-AVDD-",
+    8 : "-U5V-",
+    9 : "-GND-",
+    10 : "-NC-",
+    11 : "PA5" ,
     12 : "PA12",
+    13 : "PA6" ,
     14 : "PA11",
+    15 : "PA7" ,
     16 : "PB12",
+    17 : "PB6" ,
     18 : "PB11",
-    20 : "-"   ,
+    19 : "PC7" ,
+    20 : "-GND-",
+    21 : "PA9" ,
     22 : "PB2" ,
+    23 : "PA8" ,
     24 : "PB1" ,
+    25 : "PB10",
     26 : "PB15",
+    27 : "PB4" ,
     28 : "PB14",
+    29 : "PB5" ,
     30 : "PB13",
-    32 : "-"   ,
+    31 : "PB3" ,
+    32 : "-AGND-",
+    33 : "PA10",
     34 : "PC4" ,
-    36 : "-"   ,
-    38 : "-"   ,
+    35 : "PA2" ,
+    36 : "-NC-",
+    37 : "PA3" ,
+    38 : "-NC-",
 }
 
 
@@ -110,6 +110,8 @@ def lookup_io_board(gpio_name):
         return UARTS
     if gpio_name in PPS:
         return PPS
+    if gpio_name in SPI:
+        return SPI
 
 
 def print_io_board(gpio_name):
@@ -146,7 +148,10 @@ def print_connect(connector):
             role = lookup_io_board(gpio)
             if role:
                 print("%4s %2u %4s = %s %u" % (connector["name"], pin, gpio, role["name"], role[gpio]))
-
+            else:
+                print("%4s %2u %4s = <UNUSED>" % (connector["name"], pin, gpio))
+        else:
+            print("%4s %2u      = %4s" % (connector["name"], pin, gpio))
 
 def print_help():
 
@@ -169,12 +174,14 @@ def print_help():
 def load_line(subject_map, line):
     parts = line.split(',')
     port = parts[0].strip().replace("{","").replace("GPIO","P")
-    pin = parts[1].strip().replace("}","")[4:]
+    pin = parts[1].strip().replace("}","")
     name = parts[2].strip().replace("/", "").replace("\\","")
     name = name.replace("*","").strip()
     name = name.split("=")[0].strip()
     type_num = name.split(" ")[1]
-    subject_map[port + pin] = int(type_num)
+    pins = [ p.strip()[4:] for p in pin.split('|') ]
+    for pin in pins:
+        subject_map[port + pin] = int(type_num) 
 
 
 def load_uart_line(line):
@@ -203,6 +210,8 @@ def main():
                 load_line(OUTPUTS, line)
             elif line.find("/* PPS") != -1:
                 load_line(PPS, line)
+            elif line.find("/* SPI") != -1:
+                load_line(SPI, line)
             elif line.find("/* UART") != -1:
                 load_uart_line(line)
 
