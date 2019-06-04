@@ -216,7 +216,7 @@ def main():
             elif line.find("/* UART") != -1:
                 load_uart_line(line)
 
-    if len(sys.argv) < 1:
+    if len(sys.argv) < 2:
         print_help()
         sys.exit(0)
 
