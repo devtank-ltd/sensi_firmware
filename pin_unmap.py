@@ -11,6 +11,14 @@ PPS={"name":"PPS"}
 UARTS={"name":"UART"}
 SPI={"name":"SPI"}
 
+roles = [
+ADCs,
+INPUTS,
+OUTPUTS,
+PPS,
+UARTS,
+SPI]
+
 CN7={
     "name": "CN7",
     1 : "PC10",
@@ -100,24 +108,15 @@ connectors = {"CN7" : CN7, "CN10": CN10}
 
 
 def lookup_io_board(gpio_name):
-    if gpio_name in ADCs:
-        return ADCs
-    if gpio_name in INPUTS:
-        return INPUTS
-    if gpio_name in OUTPUTS:
-        return OUTPUTS
-    if gpio_name in UARTS:
-        return UARTS
-    if gpio_name in PPS:
-        return PPS
-    if gpio_name in SPI:
-        return SPI
+    for role in roles:
+        if gpio_name in role:
+            return role
 
 
 def print_io_board(gpio_name):
     role = lookup_io_board(gpio_name)
     if role:
-        print("%s %u = %s" % (role["name"], role[gpio_name], gpio_name))
+        print("%s = %s %u" % (gpio_name, role["name"], role[gpio_name]))
 
 
 def lookup_connector(gpio_name, connector):
@@ -159,15 +158,17 @@ def print_help():
     print_connect(CN10)
 
     print("="*72)
-    print("2 arguments:")
-    print("="*72)
+    print("Look up GPIO by connector and pin:")
     print("<connector> <pin>")
     print("connector = CN7 or CN10")
     print("pin = number")
     print("="*72)
-    print("1 argument:")
-    print("="*72)
+    print("Look up role and connector and pin:")
     print("<GPIO Name>")
+    print("="*72)
+    print("Print GPIO roles:")
+    print('"roles"')
+    print("="*72)
 
 
 
@@ -181,7 +182,7 @@ def load_line(subject_map, line):
     type_num = name.split(" ")[1]
     pins = [ p.strip()[4:] for p in pin.split('|') ]
     for pin in pins:
-        subject_map[port + pin] = int(type_num) 
+        subject_map[port + pin] = int(type_num)
 
 
 def load_uart_line(line):
@@ -215,16 +216,25 @@ def main():
             elif line.find("/* UART") != -1:
                 load_uart_line(line)
 
-    if len(sys.argv) < 2:
+    if len(sys.argv) < 1:
         print_help()
         sys.exit(0)
 
     if len(sys.argv) == 2:
         gpio_name = sys.argv[1]
-        if lookup_connector(gpio_name, CN7) and \
+        if lookup_connector(gpio_name, CN7) or \
           lookup_connector(gpio_name, CN10):
               sys.exit(0)
-        print("GPIO %s not found" % gpio_name)
+        if gpio_name == "roles":
+            for role in roles:
+                print(role["name"],":")
+                keys = list(role.keys())
+                keys.remove("name")
+                for k in keys:
+                    print("\t%5s %u" % (k, role[k]))
+            sys.exit(0)
+        else:
+            print('Not known GPIO or "roles"')
         sys.exit(-1)
 
     connector = sys.argv[1]
