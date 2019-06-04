@@ -10,6 +10,7 @@ OUTPUTS={"name":"OUTPUT"}
 PPS={"name":"PPS"}
 UARTS={"name":"UART"}
 SPI={"name":"SPI"}
+LEDS={"name":"LED"}
 
 roles = [
 ADCs,
@@ -17,7 +18,8 @@ INPUTS,
 OUTPUTS,
 PPS,
 UARTS,
-SPI]
+SPI,
+LEDS]
 
 CN7={
     "name": "CN7",
@@ -203,18 +205,14 @@ def main():
     own_dir = os.path.dirname(sys.argv[0])
     with open(own_dir + "/pinmap.h") as f:
         for line in f:
-            if line.find("/* ADC") != -1:
-                load_line(ADCs, line)
-            elif line.find("/* Input") != -1:
-                load_line(INPUTS, line)
-            elif line.find("/* Output") != -1:
-                load_line(OUTPUTS, line)
-            elif line.find("/* PPS") != -1:
-                load_line(PPS, line)
-            elif line.find("/* SPI") != -1:
-                load_line(SPI, line)
-            elif line.find("/* UART") != -1:
-                load_uart_line(line)
+            for role in roles:
+                name = role["name"]
+                if line.find("/* %s" % name) != -1:
+                    if name == "UART":
+                        load_uart_line(line)
+                    else:
+                        load_line(role, line)
+                    break
 
     if len(sys.argv) < 2:
         print_help()

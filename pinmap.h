@@ -11,8 +11,16 @@ typedef struct
 
 #define PORT_TO_RCC(_port_)   (RCC_GPIOA + ((_port_ - GPIO_PORT_A_BASE) / 0x400))
 
-#define LED_PORT   GPIOA
-#define LED_PIN    GPIO5
+#define GPIO(_array_, _index_) ((port_n_pins_t[])_array_)[_index_]
+
+#define LED_PORT_N_PINS         \
+{                               \
+    {GPIOC, GPI10},  /* LED 0 */ \
+}
+
+
+#define LED_PORT   GPIO(LED_PORT_N_PINS, 0).port
+#define LED_PIN    GPIO(LED_PORT_N_PINS, 0).pins
 
 #define ADCS_PORT_N_PINS                            \
 {                                                   \
@@ -63,15 +71,15 @@ typedef struct
 
 #define INPUTS_PORT_N_PINS              \
 {                                       \
-    {GPIOC, GPIO12},   /* Input 0 */    \
-    {GPIOA, GPIO15},   /* Input 1 */    \
-    {GPIOB, GPIO7},    /* Input 2 */    \
-    {GPIOA, GPIO8},    /* Input 3 */    \
-    {GPIOB, GPIO10},   /* Input 4 */    \
-    {GPIOB, GPIO4},    /* Input 5 */    \
-    {GPIOD, GPIO2},    /* Input 6 */    \
-    {GPIOC, GPIO2},    /* Input 7 */    \
-    {GPIOB, GPIO13},   /* Input 8 */    \
+    {GPIOC, GPIO12},   /* INPUT 0 */    \
+    {GPIOA, GPIO15},   /* INPUT 1 */    \
+    {GPIOB, GPIO7},    /* INPUT 2 */    \
+    {GPIOA, GPIO8},    /* INPUT 3 */    \
+    {GPIOB, GPIO10},   /* INPUT 4 */    \
+    {GPIOB, GPIO4},    /* INPUT 5 */    \
+    {GPIOD, GPIO2},    /* INPUT 6 */    \
+    {GPIOC, GPIO2},    /* INPUT 7 */    \
+    {GPIOB, GPIO13},   /* INPUT 8 */    \
 }
 
 #define INPUT_PULL                \
@@ -92,22 +100,22 @@ typedef struct
 
 #define OUTPUTS_PORT_N_PINS              \
 {                                        \
-    {GPIOC, GPIO8},     /* Output 0 */   \
-    {GPIOC, GPIO6},     /* Output 1 */   \
-    {GPIOB, GPIO12},    /* Output 2 */   \
-    {GPIOB, GPIO11},    /* Output 3 */   \
-    {GPIOB, GPIO2},     /* Output 4 */   \
-    {GPIOB, GPIO6},     /* Output 5 */   \
-    {GPIOB, GPIO14},    /* Output 6 */   \
-    {GPIOB, GPIO15},    /* Output 7 */   \
-    {GPIOA, GPIO9},     /* Output 8 */   \
-    {GPIOA, GPIO10},    /* Output 9 */   \
-    {GPIOA, GPIO13},    /* Output 10 */  \
-    {GPIOA, GPIO14},    /* Output 11 */  \
-    {GPIOC, GPIO13},    /* Output 12 */  \
-    {GPIOB, GPIO5},     /* Output 13 */  \
-    {GPIOB, GPIO8},     /* Output 14 */  \
-    {GPIOB, GPIO9},     /* Output 15 */  \
+    {GPIOC, GPIO8},     /* OUTPUT 0 */   \
+    {GPIOC, GPIO6},     /* OUTPUT 1 */   \
+    {GPIOB, GPIO12},    /* OUTPUT 2 */   \
+    {GPIOB, GPIO11},    /* OUTPUT 3 */   \
+    {GPIOB, GPIO2},     /* OUTPUT 4 */   \
+    {GPIOB, GPIO6},     /* OUTPUT 5 */   \
+    {GPIOB, GPIO14},    /* OUTPUT 6 */   \
+    {GPIOB, GPIO15},    /* OUTPUT 7 */   \
+    {GPIOA, GPIO9},     /* OUTPUT 8 */   \
+    {GPIOA, GPIO10},    /* OUTPUT 9 */   \
+    {GPIOA, GPIO13},    /* OUTPUT 10 */  \
+    {GPIOA, GPIO14},    /* OUTPUT 11 */  \
+    {GPIOC, GPIO13},    /* OUTPUT 12 */  \
+    {GPIOB, GPIO5},     /* OUTPUT 13 */  \
+    {GPIOB, GPIO8},     /* OUTPUT 14 */  \
+    {GPIOB, GPIO9},     /* OUTPUT 15 */  \
 }
 
 #define OUTPUT_PULL                      \
@@ -139,8 +147,6 @@ typedef struct
     {GPIOA, GPIO12},                /* SPI 4*/ \
     {GPIOA, GPIO0},                 /* SPI 5*/ \
 }
-
-#define GPIO(_array_, _index_) ((port_n_pins_t[])_array_)[_index_]
 
 #define ADS1248_RRC_SPI_CLK     RCC_SPI1
 #define ADS1248_PORT            GPIO(SPI_PORT_N_PINS, 0).port
