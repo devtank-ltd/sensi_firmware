@@ -50,7 +50,7 @@ void     adcs_ex_do_samples()
     if (!(call_count % 2))
         return;
 
-    for(unsigned n; n < ARRAY_SIZE(channel_regs); n++)
+    for(unsigned n = 0; n < ARRAY_SIZE(channel_regs); n++)
     {
         ADS1248SendSDATAC();
         ADS1248WaitForDataReady(0);
