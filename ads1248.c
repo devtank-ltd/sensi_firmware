@@ -138,7 +138,7 @@ void InitSPI(void)
     spi_reset(ADS1248_SPI);
     spi_init_master(ADS1248_SPI,
                     ADS1248_SPI_DIVIDER,
-                    SPI_CR1_CPOL_CLK_TO_1_WHEN_IDLE,
+                    SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
                     SPI_CR1_CPHA_CLK_TRANSITION_2,
                     SPI_CR1_MSBFIRST);
 
