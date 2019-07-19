@@ -2,6 +2,7 @@
 #define __PINMAPS__
 
 #include <stdint.h>
+#include <libopencm3/stm32/gpio.h>
 
 typedef struct
 {
@@ -139,13 +140,15 @@ typedef struct
 }
 
 
+#define ADS1248_SPI_DOUT        GPIO6
+#define ADS1248_SPI_CS_PIN0     GPIO0
+#define ADS1248_SPI_CS_PIN1     GPIO1
+
 #define SPI_PORT_N_PINS                        \
 {                                              \
-    {GPIOA, GPIO5 | GPIO6 | GPIO7}, /* SPI 1*/ \
-    {GPIOA, GPIO1},                 /* SPI 2*/ \
-    {GPIOA, GPIO11},                /* SPI 3*/ \
-    {GPIOA, GPIO12},                /* SPI 4*/ \
-    {GPIOA, GPIO0},                 /* SPI 5*/ \
+    {GPIOA, GPIO5 | ADS1248_SPI_DOUT | GPIO7}, /* SPI 1*/ \
+	{GPIOA, ADS1248_SPI_CS_PIN0},              /* SPI CS 0*/ \
+    {GPIOA, ADS1248_SPI_CS_PIN1},              /* SPI CS 1*/ \
 }
 
 #define ADS1248_RRC_SPI_CLK     RCC_SPI1
@@ -154,19 +157,12 @@ typedef struct
 #define ADS1248_SPI_AF_GPIOs    GPIO(SPI_PORT_N_PINS, 0).pins
 #define ADS1248_SPI_AF_GPIOS_F  GPIO_AF0
 
-#define ADS1248_SPI_CS_PIN      GPIO(SPI_PORT_N_PINS, 2).pins
+extern uint32_t ext_adc_cs;
+
+#define ADS1248_SPI_CS_PIN      ext_adc_cs
 
 #define ADS1248_SPI             SPI1
 #define ADS1248_SPI_DIVIDER     SPI_CR1_BAUDRATE_FPCLK_DIV_8
-
-#define ADS1248_DRDY_PORT       GPIO(SPI_PORT_N_PINS, 1).port
-#define ADS1248_DRDY_PIN        GPIO(SPI_PORT_N_PINS, 1).pins
-
-#define ADS1248_START_PORT      GPIO(SPI_PORT_N_PINS, 3).port
-#define ADS1248_START_PIN       GPIO(SPI_PORT_N_PINS, 3).pins
-
-#define ADS1248_RESET_PORT      GPIO(SPI_PORT_N_PINS, 4).port
-#define ADS1248_RESET_PIN       GPIO(SPI_PORT_N_PINS, 4).pins
 
 
 #endif //__PINMAPS__

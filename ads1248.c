@@ -79,6 +79,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 
+uint32_t ext_adc_cs = ADS1248_SPI_CS_PIN0;
 
 static unsigned char stm32_spi_byte(unsigned char data)
 {
@@ -130,7 +131,8 @@ void InitSPI(void)
     gpio_mode_setup(ADS1248_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, ADS1248_SPI_AF_GPIOs);
     gpio_set_af(ADS1248_PORT, ADS1248_SPI_AF_GPIOS_F, ADS1248_SPI_AF_GPIOs);
 
-    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN);
+    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN0);
+    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN1);
 
     spi_reset(ADS1248_SPI);
     spi_init_master(ADS1248_SPI,
@@ -167,12 +169,6 @@ void InitDevice(void)
     GPIOIntTypeSet(DRDY_PORT, ADS1248_DRDY, GPIO_FALLING_EDGE);   // GPIO_HIGH_LEVEL ?
     GPIOPinWrite(RESET_PORT,ADS1248_RESET, ADS1248_RESET);
 #elif defined (STM32F0)
-    rcc_periph_clock_enable(PORT_TO_RCC(ADS1248_DRDY_PORT));
-    rcc_periph_clock_enable(PORT_TO_RCC(ADS1248_START_PORT));
-    rcc_periph_clock_enable(PORT_TO_RCC(ADS1248_RESET_PORT));
-    gpio_mode_setup(ADS1248_DRDY_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADS1248_DRDY_PIN);
-    gpio_mode_setup(ADS1248_START_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, ADS1248_START_PIN);
-    gpio_mode_setup(ADS1248_RESET_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, ADS1248_RESET_PIN);
 #endif
 }
 
@@ -242,22 +238,29 @@ int ADS1248WaitForDataReady(int Timeout)
         while(nDRDY_REG);
         }
 #elif defined (STM32F0)
+
+    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADS1248_SPI_DOUT);
+
     if (Timeout > 0)
     {
         // wait for /DRDY = 1 to make sure it is high before we look for the transition low
-        while (!gpio_get(ADS1248_DRDY_PORT, ADS1248_DRDY_PIN) && (Timeout-- >= 0));
+        while (!gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT) && (Timeout-- >= 0));
         // wait for /DRDY = 0
-        while ( gpio_get(ADS1248_DRDY_PORT, ADS1248_DRDY_PIN) && (Timeout-- >= 0));
+        while ( gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT) && (Timeout-- >= 0));
         if (Timeout < 0)
             return ADS1248_ERROR;                   //ADS1248_TIMEOUT_WARNING;
     }
     else
     {
         // wait for /DRDY = 1
-        while (!gpio_get(ADS1248_DRDY_PORT, ADS1248_DRDY_PIN));
+        while (!gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT));
         // wait for /DRDY = 0
-        while(gpio_get(ADS1248_DRDY_PORT, ADS1248_DRDY_PIN));
+        while(gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT));
     }
+
+    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, ADS1248_SPI_DOUT);
+    gpio_set_af(ADS1248_PORT, ADS1248_SPI_AF_GPIOS_F, ADS1248_SPI_DOUT);
+
 #endif
 
     return ADS1248_NO_ERROR;
@@ -508,6 +511,7 @@ void ADS1248SendRDATAC(void)
 
 void ADS1248SendSDATAC(void)
 {
+#if !defined (STM32F0)
     // assert CS to start transfer
     ADS1248AssertCS(0);
     // send the command byte
@@ -515,6 +519,7 @@ void ADS1248SendSDATAC(void)
     // de-assert CS
     ADS1248AssertCS(1);
     return;
+#endif
 }
 
 void ADS1248SendSYSOCAL(void)
@@ -1373,10 +1378,7 @@ int ADS1248SetStart(int nStart)
     else
         GPIOPinWrite(START_PORT, ADS1248_START, 0);
 #elif defined (STM32F0)
-    if (nStart)             // nStart=0 is START low, nStart=1 is START high
-        gpio_set(ADS1248_START_PORT, ADS1248_START_PIN);
-    else
-        gpio_clear(ADS1248_START_PORT, ADS1248_START_PIN);
+    nStart = nStart;
 #endif
     return ADS1248_NO_ERROR;
 }
@@ -1399,10 +1401,7 @@ int ADS1248SetReset(int nReset)
     else
         GPIOPinWrite(RESET_PORT, ADS1248_RESET, 0);
 #elif defined (STM32F0)
-    if (nReset)             // nReset=0 is RESET low, nReset=1 is RESET high
-        gpio_set(ADS1248_RESET_PORT, ADS1248_RESET_PIN);
-    else
-        gpio_clear(ADS1248_RESET_PORT, ADS1248_RESET_PIN);
+    nReset = nReset;
 #endif
     return ADS1248_NO_ERROR;
 }

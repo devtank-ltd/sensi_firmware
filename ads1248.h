@@ -116,6 +116,8 @@
 #define ADS1248_START  GPIO_PIN_4
 #define RESET_PORT GPIO_PORTB_BASE
 #define ADS1248_RESET  GPIO_PIN_5
+#else
+#include "pinmap.h"
 #endif
 
 /* Error Return Values */
