@@ -14,6 +14,7 @@
 #include "usb_uarts.h"
 #include "uarts.h"
 #include "adcs.h"
+#include "adc_ex.h"
 #include "pulsecount.h"
 #include "timers.h"
 #include "inputs.h"
@@ -40,6 +41,7 @@ int main(void) {
     cmds_init();
     usb_init();
     adcs_init();
+    adcs_ex_init();
     pulsecount_init();
     timers_init();
     inputs_init();

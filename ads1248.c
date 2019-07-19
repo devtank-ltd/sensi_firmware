@@ -75,6 +75,7 @@
 #include <msp430.h>
 #elif defined(STM32F0)
 #include "pinmap.h"
+#include "log.h"
 #include <libopencm3/stm32/spi.h>
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
@@ -239,6 +240,8 @@ int ADS1248WaitForDataReady(int Timeout)
         }
 #elif defined (STM32F0)
 
+    log_debug(DEBUG_ADC, "Start data wait");
+
     gpio_mode_setup(ADS1248_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADS1248_SPI_DOUT);
 
     if (Timeout > 0)
@@ -257,6 +260,7 @@ int ADS1248WaitForDataReady(int Timeout)
         // wait for /DRDY = 0
         while(gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT));
     }
+    log_debug(DEBUG_ADC, "Done data wait");
 
     gpio_mode_setup(ADS1248_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, ADS1248_SPI_DOUT);
     gpio_set_af(ADS1248_PORT, ADS1248_SPI_AF_GPIOS_F, ADS1248_SPI_DOUT);
