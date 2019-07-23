@@ -67,6 +67,10 @@
 
 #include "ads1248.h"
 
+#include <string.h>
+#include <stdarg.h>
+#include <stdio.h>
+
 /*
  * ======== Standard MSP430 includes ========
  */
@@ -84,8 +88,25 @@ uint32_t ext_adc_cs = ADS1248_SPI_CS_PIN0;
 
 static unsigned char stm32_spi_byte(unsigned char data)
 {
-    spi_send8(ADS1248_SPI, data);
-    return spi_read8(ADS1248_SPI);
+platform_raw_msg("stm32_spi_byte");
+
+    ADS1248AssertCS(0);
+    union
+	{
+    	uint8_t u8data[2];
+    	uint16_t u16data;
+	} u_data;
+
+	u_data.u8data[0] = data;
+	u_data.u8data[1] = 0x00;
+
+	uint16_t ret_data = spi_xfer(ADS1248_SPI, u_data.u16data);
+	u_data.u16data = ret_data;
+
+//    spi_send8(ADS1248_SPI, data);
+//    unsigned char in_data = spi_read8(ADS1248_SPI);
+    ADS1248AssertCS(1);
+    return u_data.u8data[1];
 }
 
 
@@ -94,6 +115,13 @@ static void stm32_delay()
     for(unsigned n = 0; n < 100000; n++)
         asm("nop");
 }
+
+//static void TEST_DELAY()
+//{
+//    for(unsigned n = 0; n < 1000; n++)
+//        asm("nop");
+//}
+
 
 #endif
 
@@ -132,14 +160,15 @@ void InitSPI(void)
     gpio_mode_setup(ADS1248_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, ADS1248_SPI_AF_GPIOs);
     gpio_set_af(ADS1248_PORT, ADS1248_SPI_AF_GPIOS_F, ADS1248_SPI_AF_GPIOs);
 
-    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN0);
-    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN1);
+    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, ADS1248_SPI_CS_PIN0);
+//@@@    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN0);
+//    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN1);
 
     spi_reset(ADS1248_SPI);
     spi_init_master(ADS1248_SPI,
                     ADS1248_SPI_DIVIDER,
                     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
-                    SPI_CR1_CPHA_CLK_TRANSITION_2,
+                    SPI_CR1_CPHA_CLK_TRANSITION_1,
                     SPI_CR1_MSBFIRST);
 
     spi_set_data_size(ADS1248_SPI, SPI_CR2_DS_8BIT);
@@ -170,6 +199,7 @@ void InitDevice(void)
     GPIOIntTypeSet(DRDY_PORT, ADS1248_DRDY, GPIO_FALLING_EDGE);   // GPIO_HIGH_LEVEL ?
     GPIOPinWrite(RESET_PORT,ADS1248_RESET, ADS1248_RESET);
 #elif defined (STM32F0)
+    ADS1248AssertCS(1);
 #endif
 }
 
@@ -240,7 +270,7 @@ int ADS1248WaitForDataReady(int Timeout)
         }
 #elif defined (STM32F0)
 
-    log_debug(DEBUG_ADC, "Start data wait");
+    platform_raw_msg("Start data wait");
 
     gpio_mode_setup(ADS1248_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADS1248_SPI_DOUT);
 
@@ -260,7 +290,7 @@ int ADS1248WaitForDataReady(int Timeout)
         // wait for /DRDY = 0
         while(gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT));
     }
-    log_debug(DEBUG_ADC, "Done data wait");
+    platform_raw_msg("Done data wait");
 
     gpio_mode_setup(ADS1248_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, ADS1248_SPI_DOUT);
     gpio_set_af(ADS1248_PORT, ADS1248_SPI_AF_GPIOS_F, ADS1248_SPI_DOUT);
@@ -290,9 +320,11 @@ void ADS1248AssertCS( int fAssert)
         GPIOPinWrite(NCS_PORT, ADS1248_CS, 0);
 #elif defined (STM32F0)
     if (fAssert){
+platform_raw_msg("CS high");
         stm32_delay();
         gpio_set(ADS1248_PORT, ADS1248_SPI_CS_PIN);
     } else
+platform_raw_msg("CS low");
         gpio_clear(ADS1248_PORT, ADS1248_SPI_CS_PIN);
 #endif
 }
@@ -313,6 +345,8 @@ void ADS1248SendByte(unsigned char Byte)
     while(!(HWREG(SPI_BASE + SSI_O_SR) & SSI_SR_RNE));  // wait for data to appear
     dummy = HWREG(SPI_BASE+SSI_O_DR);                   // grab that data
 #elif defined (STM32F0)
+    platform_raw_msg("send byte");
+
     stm32_spi_byte(Byte);
 #endif
 }
@@ -369,6 +403,7 @@ void ADS1248SendSync(void)
 {
     // assert CS to start transfer
     ADS1248AssertCS(0);
+    platform_raw_msg("send sync");
     // send the command byte
     ADS1248SendByte(ADS1248_CMD_SYNC);
     // de-assert CS
@@ -379,9 +414,15 @@ void ADS1248SendSync(void)
 void ADS1248SendResetCommand(void)
 {
     // assert CS to start transfer
-    ADS1248AssertCS(0);
+	ADS1248AssertCS(0);
+
+    platform_raw_msg("post cs");
+
     // send the command byte
     ADS1248SendByte(ADS1248_CMD_RESET);
+
+    platform_raw_msg("post send byte.");
+
     // de-assert CS
     ADS1248AssertCS(1);
     return;
@@ -438,7 +479,10 @@ void ADS1248WriteRegister(int StartAddress, int NumRegs, unsigned * pData)
     // set the CS low
     ADS1248AssertCS(0);
     // send the command byte
+    platform_raw_msg("here 2b");
     ADS1248SendByte(ADS1248_CMD_WREG | (StartAddress & 0x0f));
+
+    platform_raw_msg("here2c");
     ADS1248SendByte((NumRegs-1) & 0x0f);
     // send the data bytes
     for (i=0; i < NumRegs; i++)
@@ -446,6 +490,7 @@ void ADS1248WriteRegister(int StartAddress, int NumRegs, unsigned * pData)
         ADS1248SendByte(*pData++);
     }
     // set the CS back high
+    platform_raw_msg("here2e");
     ADS1248AssertCS(1);
 }
 

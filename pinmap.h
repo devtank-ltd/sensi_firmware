@@ -159,7 +159,8 @@ typedef struct
 
 extern uint32_t ext_adc_cs;
 
-#define ADS1248_SPI_CS_PIN      ext_adc_cs
+//#define ADS1248_SPI_CS_PIN      ext_adc_cs
+#define ADS1248_SPI_CS_PIN      ADS1248_SPI_CS_PIN0
 
 #define ADS1248_SPI             SPI1
 #define ADS1248_SPI_DIVIDER     SPI_CR1_BAUDRATE_FPCLK_DIV_8

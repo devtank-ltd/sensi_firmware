@@ -4,6 +4,8 @@
 # LBBC firmware wrapper
 #
 
+VERSION = 1.0
+
 ##
 # @brief Publically exportable modules
 #

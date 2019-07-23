@@ -2,7 +2,7 @@
 
 #include "ads1248.h"
 #include "log.h"
-
+#include <libopencm3/stm32/spi.h>
 
 typedef struct
 {
@@ -23,18 +23,24 @@ static unsigned call_count = 0;
 
 static void _device_init()
 {
-    InitDevice();
+    platform_raw_msg("here");
 
+    InitDevice();
+    spi_enable(ADS1248_SPI);
+
+	platform_raw_msg("here2");
     ADS1248SendResetCommand();
 
-    ADS1248WaitForDataReady(0);
-
     unsigned regs[2] = {0};
-
     regs[0] = (regs[0] & 0xF0) | 0x0E; // DRDY mode = DOUT+DRDY, IDACs=1000 μA (1mA)
     regs[1] = 0x30;	// IDAC1->AIN0 and IDAC2->AIN3
-
     ADS1248WriteRegister(ADS1248_10_IDAC0, 2, regs);
+
+    platform_raw_msg("here3");
+    ADS1248WaitForDataReady(0);
+
+    platform_raw_msg("here4");
+
 }
 
 
