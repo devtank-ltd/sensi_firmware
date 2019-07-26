@@ -86,29 +86,34 @@
 
 uint32_t ext_adc_cs = ADS1248_SPI_CS_PIN0;
 
-static unsigned char stm32_spi_byte(unsigned char data)
+typedef union _spi_xfer_data_t
+{
+	uint16_t u16_data;
+	uint8_t  u8_data[2];
+} spi_xfer_data_t;
+
+static uint8_t stm32_spi_byte(unsigned char data)
 {
 platform_raw_msg("stm32_spi_byte");
 
-    ADS1248AssertCS(0);
-    union
-	{
-    	uint8_t u8data[2];
-    	uint16_t u16data;
-	} u_data;
+    spi_xfer_data_t u_data;
+	u_data.u8_data[0] = data;
+	u_data.u8_data[1] = ADS1248_CMD_NOP;
 
-	u_data.u8data[0] = data;
-	u_data.u8data[1] = 0x00;
+	uint16_t ret_data = spi_xfer(ADS1248_SPI, u_data.u16_data);
+	u_data.u16_data = ret_data;
 
-	uint16_t ret_data = spi_xfer(ADS1248_SPI, u_data.u16data);
-	u_data.u16data = ret_data;
-
-//    spi_send8(ADS1248_SPI, data);
-//    unsigned char in_data = spi_read8(ADS1248_SPI);
-    ADS1248AssertCS(1);
-    return u_data.u8data[1];
+    return u_data.u8_data[1];
 }
 
+//static uint8_t stm32_spi_byte(unsigned char data)
+//{
+//platform_raw_msg("stm32_spi_byte");
+//
+//	spi_send8(ADS1248_SPI, data);
+//	return spi_read8(ADS1248_SPI);
+//}
+//
 
 static void stm32_delay()
 {
@@ -116,18 +121,13 @@ static void stm32_delay()
         asm("nop");
 }
 
-//static void TEST_DELAY()
-//{
-//    for(unsigned n = 0; n < 1000; n++)
-//        asm("nop");
-//}
-
-
 #endif
 
 void InitSPI(void)
 {
-#if defined (__MSP430F5529__)
+    platform_raw_msg("InitSPI");
+
+    #if defined (__MSP430F5529__)
     UCB0CTL1 |= UCSWRST;                        // Hold peripheral in reset
     UCB0CTL0 = UCMST + UCSYNC + UCMSB;          // SPI master, synchronous
     UCB0CTL1 = UCSSEL_2 + UCSWRST;              // Use SMCLK for bit rate clock and keep in reset
@@ -154,15 +154,15 @@ void InitSPI(void)
     // clear out any 'junk' that may be in the SPI RX fifo.
     while(SSIDataGetNonBlocking(SPI_BASE, &dataRx));
 #elif defined (STM32F0)
-    rcc_periph_clock_enable(PORT_TO_RCC(ADS1248_PORT));
+
+	rcc_periph_clock_enable(PORT_TO_RCC(ADS1248_PORT));
     rcc_periph_clock_enable(ADS1248_RRC_SPI_CLK);
 
     gpio_mode_setup(ADS1248_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, ADS1248_SPI_AF_GPIOs);
     gpio_set_af(ADS1248_PORT, ADS1248_SPI_AF_GPIOS_F, ADS1248_SPI_AF_GPIOs);
 
     gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, ADS1248_SPI_CS_PIN0);
-//@@@    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN0);
-//    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, ADS1248_SPI_CS_PIN1);
+    gpio_mode_setup(ADS1248_DRDY_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, ADS1248_DRDY_PIN);
 
     spi_reset(ADS1248_SPI);
     spi_init_master(ADS1248_SPI,
@@ -208,13 +208,15 @@ void InitDevice(void)
  */
 void InitConfig(void)
 {
-    //establish some startup register settings
+platform_raw_msg("InitConfig");
+	//establish some startup register settings
     unsigned regArray[4];
     // Send SDATAC command
     ADS1248SendSDATAC();
     ADS1248WaitForDataReady(0);
-    ADS1248SendSDATAC();
-    //write the desired default register settings for the first 4 registers NOTE: values shown are the POR values as per datasheet
+
+    // write the desired default register settings for the first 4 registers
+    // NOTE: values shown are the POR values as per datasheet
     regArray[0] = 0x01;
     regArray[1] = 0x00;
     regArray[2] = 0x00;
@@ -272,28 +274,23 @@ int ADS1248WaitForDataReady(int Timeout)
 
     platform_raw_msg("Start data wait");
 
-    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_INPUT, GPIO_PUPD_NONE, ADS1248_SPI_DOUT);
-
     if (Timeout > 0)
     {
         // wait for /DRDY = 1 to make sure it is high before we look for the transition low
-        while (!gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT) && (Timeout-- >= 0));
+        while (!gpio_get(ADS1248_PORT, ADS1248_DRDY_PIN) && (Timeout-- >= 0));
         // wait for /DRDY = 0
-        while ( gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT) && (Timeout-- >= 0));
+        while ( gpio_get(ADS1248_PORT, ADS1248_DRDY_PIN) && (Timeout-- >= 0));
         if (Timeout < 0)
             return ADS1248_ERROR;                   //ADS1248_TIMEOUT_WARNING;
     }
     else
     {
         // wait for /DRDY = 1
-        while (!gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT));
+        while (!gpio_get(ADS1248_PORT, ADS1248_DRDY_PIN));
         // wait for /DRDY = 0
-        while(gpio_get(ADS1248_PORT, ADS1248_SPI_DOUT));
+        while(gpio_get(ADS1248_PORT, ADS1248_DRDY_PIN));
     }
     platform_raw_msg("Done data wait");
-
-    gpio_mode_setup(ADS1248_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, ADS1248_SPI_DOUT);
-    gpio_set_af(ADS1248_PORT, ADS1248_SPI_AF_GPIOS_F, ADS1248_SPI_DOUT);
 
 #endif
 
@@ -320,11 +317,11 @@ void ADS1248AssertCS( int fAssert)
         GPIOPinWrite(NCS_PORT, ADS1248_CS, 0);
 #elif defined (STM32F0)
     if (fAssert){
-platform_raw_msg("CS high");
+platform_raw_msg("CS HIGH");
         stm32_delay();
         gpio_set(ADS1248_PORT, ADS1248_SPI_CS_PIN);
     } else
-platform_raw_msg("CS low");
+platform_raw_msg("CS LOW");
         gpio_clear(ADS1248_PORT, ADS1248_SPI_CS_PIN);
 #endif
 }
@@ -347,7 +344,7 @@ void ADS1248SendByte(unsigned char Byte)
 #elif defined (STM32F0)
     platform_raw_msg("send byte");
 
-    stm32_spi_byte(Byte);
+    (void) stm32_spi_byte(Byte);
 #endif
 }
 
@@ -416,12 +413,8 @@ void ADS1248SendResetCommand(void)
     // assert CS to start transfer
 	ADS1248AssertCS(0);
 
-    platform_raw_msg("post cs");
-
-    // send the command byte
+	// send the command byte
     ADS1248SendByte(ADS1248_CMD_RESET);
-
-    platform_raw_msg("post send byte.");
 
     // de-assert CS
     ADS1248AssertCS(1);
@@ -560,7 +553,6 @@ void ADS1248SendRDATAC(void)
 
 void ADS1248SendSDATAC(void)
 {
-#if !defined (STM32F0)
     // assert CS to start transfer
     ADS1248AssertCS(0);
     // send the command byte
@@ -568,7 +560,6 @@ void ADS1248SendSDATAC(void)
     // de-assert CS
     ADS1248AssertCS(1);
     return;
-#endif
 }
 
 void ADS1248SendSYSOCAL(void)

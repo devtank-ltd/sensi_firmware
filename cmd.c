@@ -79,6 +79,11 @@ void adcex_cb()
     adcs_ex_adc_log(adc);
 }
 
+void adcex_read()
+{
+	// Read value - single conversion
+	// Return value
+}
 
 void input_cb()
 {

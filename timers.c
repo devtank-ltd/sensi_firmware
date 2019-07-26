@@ -102,7 +102,6 @@ void     timers_init()
     nvic_enable_irq(NVIC_TIM2_IRQ);
     nvic_set_priority(NVIC_TIM2_IRQ, TIMER2_PRIORITY);
 
-/*
     timer_disable_counter(TIM7);
 
     timer_set_mode(TIM7,
@@ -121,5 +120,4 @@ void     timers_init()
     timer_set_counter(TIM7, 0);
     nvic_enable_irq(NVIC_TIM7_IRQ);
     nvic_set_priority(NVIC_TIM7_IRQ, TIMER3_PRIORITY);
-*/
 }

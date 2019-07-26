@@ -142,13 +142,14 @@ typedef struct
 
 #define ADS1248_SPI_DOUT        GPIO6
 #define ADS1248_SPI_CS_PIN0     GPIO0
-#define ADS1248_SPI_CS_PIN1     GPIO1
+#define ADS1248_DRDY_PORT       GPIOA
+#define ADS1248_DRDY_PIN        GPIO1
 
 #define SPI_PORT_N_PINS                        \
 {                                              \
     {GPIOA, GPIO5 | ADS1248_SPI_DOUT | GPIO7}, /* SPI 1*/ \
 	{GPIOA, ADS1248_SPI_CS_PIN0},              /* SPI CS 0*/ \
-    {GPIOA, ADS1248_SPI_CS_PIN1},              /* SPI CS 1*/ \
+    {GPIOA, ADS1248_DRDY_PIN},    	   		   /* SPI DRDY*/ \
 }
 
 #define ADS1248_RRC_SPI_CLK     RCC_SPI1
@@ -164,6 +165,5 @@ extern uint32_t ext_adc_cs;
 
 #define ADS1248_SPI             SPI1
 #define ADS1248_SPI_DIVIDER     SPI_CR1_BAUDRATE_FPCLK_DIV_8
-
 
 #endif //__PINMAPS__

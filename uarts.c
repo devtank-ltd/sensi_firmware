@@ -97,6 +97,12 @@ void UART_2_ISR(void)
                 log_debug_mask |= DEBUG_ADC;
             }
             break;
+        case 'E':
+        	if (log_debug_mask)
+        	{
+        		log_debug(DEBUG_SYS, "Poll ADCEX debug");
+        		log_debug_mask |= DEBUG_ADC_EX;
+        	}
         case 'U':
             if (log_debug_mask)
             {
