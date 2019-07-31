@@ -43,7 +43,7 @@ SOURCES += main.c \
            inputs.c \
            outputs.c \
            ring.c \
-           ads1248.c \
+           max31865_adc.c \
            adc_ex.c
 
 BUILD_DIR := build/

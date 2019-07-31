@@ -88,6 +88,7 @@ void UART_2_ISR(void)
             log_debug(DEBUG_SYS, "Enabling Debug via debug comms");
             log_debug(DEBUG_SYS, "U = enable UART debug");
             log_debug(DEBUG_SYS, "A = enable ADC debug");
+            log_debug(DEBUG_SYS, "X = enable ADCEX debug");
             log_debug(DEBUG_SYS, "R = show UART ring buffers");
             break;
         case 'A':
@@ -97,12 +98,14 @@ void UART_2_ISR(void)
                 log_debug_mask |= DEBUG_ADC;
             }
             break;
-        case 'E':
+        case 'X':
         	if (log_debug_mask)
         	{
         		log_debug(DEBUG_SYS, "Poll ADCEX debug");
         		log_debug_mask |= DEBUG_ADC_EX;
         	}
+        	break;
+
         case 'U':
             if (log_debug_mask)
             {

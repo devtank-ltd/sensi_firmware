@@ -140,30 +140,32 @@ typedef struct
 }
 
 
-#define ADS1248_SPI_DOUT        GPIO6
-#define ADS1248_SPI_CS_PIN0     GPIO0
-#define ADS1248_DRDY_PORT       GPIOA
-#define ADS1248_DRDY_PIN        GPIO1
+#define MAX31865_SPI_SCLK       GPIO5
+#define MAX31865_SPI_MISO       GPIO6
+#define MAX31865_SPI_MOSI       GPIO7
+#define MAX31865_SPI_CS_PIN0	GPIO0
+#define MAX31865_DRDY_PORT      GPIOA
+#define MAX31865_DRDY_PIN       GPIO1
 
 #define SPI_PORT_N_PINS                        \
 {                                              \
-    {GPIOA, GPIO5 | ADS1248_SPI_DOUT | GPIO7}, /* SPI 1*/ \
-	{GPIOA, ADS1248_SPI_CS_PIN0},              /* SPI CS 0*/ \
-    {GPIOA, ADS1248_DRDY_PIN},    	   		   /* SPI DRDY*/ \
+    {GPIOA, MAX31865_SPI_SCLK | MAX31865_SPI_MISO | MAX31865_SPI_MOSI}, /* SPI 1*/ \
+	{GPIOA, MAX31865_SPI_CS_PIN0},      	/* SPI CS 0*/ \
+    {GPIOA, MAX31865_DRDY_PIN},    	   	/* SPI DRDY*/ \
 }
 
-#define ADS1248_RRC_SPI_CLK     RCC_SPI1
-#define ADS1248_PORT            GPIO(SPI_PORT_N_PINS, 0).port
+#define MAX31865_RRC_SPI_CLK 	RCC_SPI1
+#define MAX31865_PORT           GPIO(SPI_PORT_N_PINS, 0).port
 
-#define ADS1248_SPI_AF_GPIOs    GPIO(SPI_PORT_N_PINS, 0).pins
-#define ADS1248_SPI_AF_GPIOS_F  GPIO_AF0
+#define MAX31865_SPI_AF_GPIOs   GPIO(SPI_PORT_N_PINS, 0).pins
+#define MAX31865_SPI_AF_GPIOS_F GPIO_AF0
 
 extern uint32_t ext_adc_cs;
 
-//#define ADS1248_SPI_CS_PIN      ext_adc_cs
-#define ADS1248_SPI_CS_PIN      ADS1248_SPI_CS_PIN0
+#define MAX31865_SPI_CS_0     MAX31865_SPI_CS_PIN0
+// TODO: #define MAX31865_SPI_CS_1     MAX31865_SPI_CS_PIN1
 
-#define ADS1248_SPI             SPI1
-#define ADS1248_SPI_DIVIDER     SPI_CR1_BAUDRATE_FPCLK_DIV_8
+#define MAX31865_SPI            SPI1
+#define MAX31865_SPI_DIVIDER    SPI_CR1_BAUDRATE_FPCLK_DIV_8
 
 #endif //__PINMAPS__

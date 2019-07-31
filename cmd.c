@@ -2,6 +2,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "pinmap.h"
 #include "log.h"
@@ -31,6 +32,7 @@ typedef struct
 static void pps_cb();
 static void adc_cb();
 static void adcex_cb();
+static void adcex_read_cb();
 static void input_cb();
 static void output_cb();
 static void count_cb();
@@ -45,6 +47,7 @@ static cmd_t cmds[] = {
     { "adcs",     "Print all ADCs.",         adcs_log},
     { "adcex",    "Print ADC EX.",           adcex_cb},
     { "adcexs",   "Print all ADC EX.",       adcs_ex_log},
+	{ "X",   "Read ADC EX.",            adcex_read_cb},
     { "inputs",   "Print all inputs.",       inputs_log},
     { "outputs",  "Print all outputs.",      outputs_log},
     { "input",    "Print input.",            input_cb},
@@ -79,11 +82,12 @@ void adcex_cb()
     adcs_ex_adc_log(adc);
 }
 
-void adcex_read()
+void adcex_read_cb()
 {
 	// Read value - single conversion
-	// Return value
+	adcs_ex_read_value(0);
 }
+
 
 void input_cb()
 {
