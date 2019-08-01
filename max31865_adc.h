@@ -18,30 +18,30 @@
 #ifndef _MAX31865_ADC_H_
 #define _MAX31865_ADC_H_
 
-extern const uint8_t MAX31865_CHIP_ENABLE;			/**< Enable chip-select */
-extern const uint8_t MAX31865_CHIP_DISABLE;			/**< Disable chip-select */
+extern const uint8_t MAX31865_CHIP_ENABLE;/**< Enable chip-select */
+extern const uint8_t MAX31865_CHIP_DISABLE;/**< Disable chip-select */
 
-extern const uint16_t MAX31865_REF_RESISTANCE_470;	/**< Value of referent resistor in Ohms */
+extern const uint16_t MAX31865_REF_RESISTANCE_470;/**< Value of referent resistor in Ohms */
 
 /* Registers */
-extern const uint8_t MAX31865_CONFIG;				/**< Configuration Register */
-extern const uint8_t MAX31865_RTD_MSB;				/**< RTD Data MSB Register*/
-extern const uint8_t MAX31865_RTD_LSB;				/**< RTD Data LSB Register*/
-extern const uint8_t MAX31865_HI_FLT_THRHLD_MSB;	/**< High Fault Threshold MSB register */
-extern const uint8_t MAX31865_HI_FLT_THRHLD_LSB;	/**< High Fault Threshold LSB register */
-extern const uint8_t MAX31865_LO_FLT_THRHLD_MSB;	/**< Low Fault Threshold MSB register */
-extern const uint8_t MAX31865_LO_FLT_THRHLD_LSB;	/**< Low Fault Threshold LSB register */
-extern const uint8_t MAX31865_FAULT_STATUS;			/**< Fault Status Register */
-extern const uint8_t MAX31865_REG_WRITE;			/**< Register address write bit */
+extern const uint8_t MAX31865_CONFIG;/**< Configuration Register */
+extern const uint8_t MAX31865_RTD_MSB;/**< RTD Data MSB Register*/
+extern const uint8_t MAX31865_RTD_LSB;/**< RTD Data LSB Register*/
+extern const uint8_t MAX31865_HI_FLT_THRHLD_MSB;/**< High Fault Threshold MSB register */
+extern const uint8_t MAX31865_HI_FLT_THRHLD_LSB;/**< High Fault Threshold LSB register */
+extern const uint8_t MAX31865_LO_FLT_THRHLD_MSB;/**< Low Fault Threshold MSB register */
+extern const uint8_t MAX31865_LO_FLT_THRHLD_LSB;/**< Low Fault Threshold LSB register */
+extern const uint8_t MAX31865_FAULT_STATUS;/**< Fault Status Register */
+extern const uint8_t MAX31865_REG_WRITE;/**< Register address write bit */
 
 /* Configuration bits */
-extern const uint8_t MAX31865_VBIAS_ON;				/**< VBIAS on */
-extern const uint8_t MAX31865_CONVERSION_AUTO;		/**< Conversion mode auto*/
-extern const uint8_t MAX31865_ONE_SHOT;				/**< Perform single-shot reading */
-extern const uint8_t MAX31865_THREE_WIRE;			/**< Select 3-wire RTD */
-extern const uint8_t MAX31865_DETECTION_CYCLE;		/**< Fault-detection cycle */
-extern const uint8_t MAX31865_FAULT_STATUS_CLEAR;	/**< Clear fault-status */
-extern const uint8_t MAX31865_50HZ_FILTER;			/**< Select 50Hz filter */
+extern const uint8_t MAX31865_VBIAS_ON;/**< VBIAS on */
+extern const uint8_t MAX31865_CONVERSION_AUTO;/**< Conversion mode auto*/
+extern const uint8_t MAX31865_ONE_SHOT;/**< Perform single-shot reading */
+extern const uint8_t MAX31865_THREE_WIRE;/**< Select 3-wire RTD */
+extern const uint8_t MAX31865_DETECTION_CYCLE;/**< Fault-detection cycle */
+extern const uint8_t MAX31865_FAULT_STATUS_CLEAR;/**< Clear fault-status */
+extern const uint8_t MAX31865_50HZ_FILTER;/**< Select 50Hz filter */
 
 #ifdef __cplusplus
 extern "C"{
@@ -121,7 +121,7 @@ uint16_t max31865_read_temperature(uint8_t chip);
  * data.
  */
 double max31865_convert_temperature(uint16_t raw_value,
-								    uint16_t ref_resistance);
+    uint16_t ref_resistance);
 
 #ifdef __cplusplus
 } // extern "C"

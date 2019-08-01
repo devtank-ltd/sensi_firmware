@@ -14,13 +14,13 @@
 #include "log.h"
 #include "max31865_adc.h"
 
-const uint8_t MAX31865_OK     = 0;            		/**< NO ERROR */
+const uint8_t MAX31865_OK     = 0;                    /**< NO ERROR */
 const uint8_t MAX31865_ERR    = 1;                  /**< ERROR OCCURED */
 
-const uint8_t MAX31865_CHIP_ENABLE = 0;				/** Enable chip-select */
-const uint8_t MAX31865_CHIP_DISABLE = 1;			/** Disable chip-select */
+const uint8_t MAX31865_CHIP_ENABLE = 0;                /** Enable chip-select */
+const uint8_t MAX31865_CHIP_DISABLE = 1;            /** Disable chip-select */
 
-const uint16_t MAX31865_REF_RESISTANCE_470 = 470;	/**< Value of referent resistor in Ohms */
+const uint16_t MAX31865_REF_RESISTANCE_470 = 470;    /**< Value of referent resistor in Ohms */
 
 /* Registers */
 const uint8_t MAX31865_CONFIG              = 0x00;  /**< Configuration Register */
@@ -47,12 +47,12 @@ const uint8_t MAX31865_50HZ                = 0x01;  /**< Select 50Hz */
  */
 typedef union _max31865_register_t
 {
-	struct
-	{
-		uint8_t addr;	/**< Register offset address */
-		uint8_t data;	/**< Register data */
-	} u8;
-	uint16_t buffer;
+    struct
+    {
+        uint8_t addr;    /**< Register offset address */
+        uint8_t data;    /**< Register data */
+    } u8;
+    uint16_t buffer;
 } max31865_register_t;
 
 /**
@@ -60,12 +60,12 @@ typedef union _max31865_register_t
  */
 typedef union _raw_temperature_t
 {
-	struct
-	{
-		uint8_t msb;
-		uint8_t lsb;
-	} u8;
-	uint16_t u16_temperature;
+    struct
+    {
+        uint8_t msb;
+        uint8_t lsb;
+    } u8;
+    uint16_t u16_temperature;
 } raw_temperature_t;
 
 static void max31865_delay(uint32_t delay)
@@ -78,22 +78,19 @@ static void max31865_delay(uint32_t delay)
 
 static void max31865_enable_device(uint8_t chip)
 {
-platform_raw_msg("ENABLE");
-	gpio_clear(MAX31865_PORT, chip);
-	max31865_delay(1000);
+    gpio_clear(MAX31865_PORT, chip);
 }
 
 static void max31865_disable_device(uint8_t chip)
 {
-platform_raw_msg("DISABLE");
-	max31865_delay(1000);
-	gpio_set(MAX31865_PORT, chip);
+    max31865_delay(500);
+    gpio_set(MAX31865_PORT, chip);
 }
 
 //static uint8_t max31865_spi_send8(uint8_t data)
 //{
-////	uint16_t xfer_data = (data << 8) | 0xFF;
-////	return spi_xfer(MAX31865_SPI, xfer_data);
+////    uint16_t xfer_data = (data << 8) | 0xFF;
+////    return spi_xfer(MAX31865_SPI, xfer_data);
 //return spi_xfer(MAX31865_SPI, data);
 //}
 
@@ -101,43 +98,43 @@ void max31865_init(void)
 {
 platform_raw_msg("max31865_init: start");
 
-	// Assign chip select (active low)
-	gpio_mode_setup(MAX31865_PORT,
-					GPIO_MODE_OUTPUT,
-					GPIO_PUPD_PULLUP,
-					MAX31865_SPI_CS_PIN0);
+    // Assign chip select (active low)
+    gpio_mode_setup(MAX31865_PORT,
+                    GPIO_MODE_OUTPUT,
+                    GPIO_PUPD_PULLUP,
+                    MAX31865_SPI_CS_PIN0);
 
 platform_raw_msg("max31865_init: init GPIO");
 
-	// Assign alternative function 0 to SPI GPIO pins
+    // Assign alternative function 0 to SPI GPIO pins
     gpio_mode_setup(MAX31865_PORT,
-    				GPIO_MODE_AF,
-					GPIO_PUPD_NONE,
-					MAX31865_SPI_AF_GPIOs);
+                    GPIO_MODE_AF,
+                    GPIO_PUPD_PULLUP,
+                    MAX31865_SPI_AF_GPIOs);
 
     gpio_set_af(MAX31865_PORT,
-    			MAX31865_SPI_AF_GPIOS_F,
-				MAX31865_SPI_AF_GPIOs);
+                MAX31865_SPI_AF_GPIOS_F,
+                MAX31865_SPI_AF_GPIOs);
 
     // TODO: CHIP1   gpio_mode_setup(MAX31865_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, MAX31865_SPI_CS_PIN1);
 
     // Assign data ready input (active low)
     gpio_mode_setup(MAX31865_DRDY_PORT,
-    				GPIO_MODE_INPUT,
-					GPIO_PUPD_PULLUP,
-					MAX31865_DRDY_PIN);
+                    GPIO_MODE_INPUT,
+                    GPIO_PUPD_PULLUP,
+                    MAX31865_DRDY_PIN);
 
 //platform_raw_msg("max31865_init: spi_reset");
 //    spi_reset(MAX31865_SPI);
 
-	// Assign clock
-	rcc_periph_clock_enable(PORT_TO_RCC(MAX31865_PORT));
-	rcc_periph_clock_enable(MAX31865_RRC_SPI_CLK);
+    // Assign clock
+    rcc_periph_clock_enable(PORT_TO_RCC(MAX31865_PORT));
+    rcc_periph_clock_enable(MAX31865_RRC_SPI_CLK);
 
 platform_raw_msg("max31865_init: spi_init_master");
-	// Init as SPI master and set data size = 8-bits
+    // Init as SPI master and set data size = 8-bits
     spi_init_master(MAX31865_SPI,
-    				MAX31865_SPI_DIVIDER,
+                    MAX31865_SPI_DIVIDER,
                     SPI_CR1_CPOL_CLK_TO_0_WHEN_IDLE,
                     SPI_CR1_CPHA_CLK_TRANSITION_1,
                     SPI_CR1_MSBFIRST);
@@ -150,92 +147,92 @@ void max31865_config(void)
 {
 platform_raw_msg("max31865_config");
 
-	// Device config - 3-wire, one-shot mode, vbias on, clear any faults
-	uint8_t config = MAX31865_VBIAS_ON | MAX31865_THREE_WIRE | MAX31865_FAULT_STATUS_CLEAR;
+    // Device config - 3-wire, one-shot mode, vbias on, clear any faults
+    uint8_t config = MAX31865_VBIAS_ON | MAX31865_THREE_WIRE | MAX31865_FAULT_STATUS_CLEAR;
 
 platform_raw_msg("max31865 write config");
 
-	max31865_enable_device(MAX31865_SPI_CS_0);
-	max31865_write_register(MAX31865_CONFIG, config);
-	max31865_disable_device(MAX31865_SPI_CS_0);
+    max31865_enable_device(MAX31865_SPI_CS_0);
+    max31865_write_register(MAX31865_CONFIG, config);
+    max31865_disable_device(MAX31865_SPI_CS_0);
 
-	// TODO: Chip 1
-//	max31865_enable_device(MAX31865_SPI_CS_1);
-//	max31865_write_register(MAX31865_CONFIG, config);
-//	max31865_disable_device(MAX31865_SPI_CS_1);
+    // TODO: Chip 1
+//    max31865_enable_device(MAX31865_SPI_CS_1);
+//    max31865_write_register(MAX31865_CONFIG, config);
+//    max31865_disable_device(MAX31865_SPI_CS_1);
 
 }
 
 void max31865_write_register(uint8_t addr, uint8_t data)
 {
 platform_raw_msg("max31865_write_register");
-	max31865_register_t reg;
-	reg.u8.addr = addr | MAX31865_REG_WRITE;
-	reg.u8.data = data;
+    max31865_register_t reg;
+    reg.u8.addr = addr | MAX31865_REG_WRITE;
+    reg.u8.data = data;
 
 char buffer[48];
 sprintf(buffer, "Write:%04X", reg.buffer);
 platform_raw_msg(buffer);
 
-	spi_write(MAX31865_SPI, reg.buffer);
+    spi_write(MAX31865_SPI, reg.buffer);
 }
 
 uint8_t max31865_read_register(uint8_t addr)
 {
-	max31865_register_t reg;
-	reg.u8.addr = addr;
-	reg.u8.data = 0x00;
+    max31865_register_t reg;
+    reg.u8.addr = addr;
+    reg.u8.data = 0x00;
 
-	spi_write(MAX31865_SPI, reg.buffer);
-	reg.buffer = spi_read(MAX31865_SPI);
+    spi_write(MAX31865_SPI, reg.buffer);
+    reg.buffer = spi_read(MAX31865_SPI);
 
     return reg.u8.data;
 }
 
 void max31865_wait_for_data_ready(void)
 {
-	while (gpio_get(MAX31865_PORT, MAX31865_DRDY_PIN))
-	{
-		// Empty wait
-		asm("nop");
-	}
+    while (gpio_get(MAX31865_PORT, MAX31865_DRDY_PIN))
+    {
+        // Empty wait
+        asm("nop");
+    }
 }
 
 void max31865_start_reading(uint8_t chip)
 {
-	// Start a temperature reading
-	uint8_t config;
-	max31865_enable_device(chip);
+    // Start a temperature reading
+    uint8_t config;
+    max31865_enable_device(chip);
 
-	config = max31865_read_register(MAX31865_CONFIG);
-	config |= MAX31865_ONE_SHOT;
-	max31865_write_register(MAX31865_CONFIG, config);
+    config = max31865_read_register(MAX31865_CONFIG);
+    config |= MAX31865_ONE_SHOT;
+    max31865_write_register(MAX31865_CONFIG, config);
 
-	max31865_disable_device(chip);
+    max31865_disable_device(chip);
 }
 
 uint16_t max31865_read_temperature(uint8_t chip)
 {
-	volatile uint16_t returnValue;
+    volatile uint16_t returnValue;
 
-	max31865_enable_device(chip);
+    max31865_enable_device(chip);
 
-	returnValue = max31865_read_register(MAX31865_RTD_MSB);
+    returnValue = max31865_read_register(MAX31865_RTD_MSB);
     returnValue <<= 8;
     returnValue |= max31865_read_register(MAX31865_RTD_LSB);
 
-	max31865_disable_device(chip);
+    max31865_disable_device(chip);
 
     return returnValue;
 }
 
 double max31865_convert_temperature(uint16_t raw_value,
-								    uint16_t ref_resistance)
+                                    uint16_t ref_resistance)
 {
-	// Algorithm and magic numbers courtesy of MikroElektonica...
+    // Algorithm and magic numbers courtesy of MikroElektonica...
 
-	double value;
-	double coefficient = (ref_resistance/400.0);
+    double value;
+    double coefficient = (ref_resistance/400.0);
 
     raw_value >>= 1;
     value = (double)raw_value * coefficient;

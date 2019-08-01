@@ -47,7 +47,7 @@ static cmd_t cmds[] = {
     { "adcs",     "Print all ADCs.",         adcs_log},
     { "adcex",    "Print ADC EX.",           adcex_cb},
     { "adcexs",   "Print all ADC EX.",       adcs_ex_log},
-	{ "X",   "Read ADC EX.",            adcex_read_cb},
+    { "X",   "Read ADC EX.",            adcex_read_cb},
     { "inputs",   "Print all inputs.",       inputs_log},
     { "outputs",  "Print all outputs.",      outputs_log},
     { "input",    "Print input.",            input_cb},
