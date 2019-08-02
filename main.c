@@ -40,12 +40,12 @@ int main(void) {
     log_init();
     cmds_init();
     usb_init();
-    adcs_init();
+//    adcs_init();
     adcs_ex_init();
-    pulsecount_init();
-    timers_init();
-    inputs_init();
-    outputs_init();
+//    pulsecount_init();
+//    timers_init();
+//    inputs_init();
+//    outputs_init();
 
     gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_PIN);
     gpio_clear(LED_PORT, LED_PIN);

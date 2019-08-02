@@ -111,8 +111,6 @@ typedef struct
     {GPIOB, GPIO15},    /* OUTPUT 7 */   \
     {GPIOA, GPIO9},     /* OUTPUT 8 */   \
     {GPIOA, GPIO10},    /* OUTPUT 9 */   \
-    {GPIOA, GPIO13},    /* OUTPUT 10 */  \
-    {GPIOA, GPIO14},    /* OUTPUT 11 */  \
     {GPIOC, GPIO13},    /* OUTPUT 12 */  \
     {GPIOB, GPIO5},     /* OUTPUT 13 */  \
     {GPIOB, GPIO8},     /* OUTPUT 14 */  \
@@ -132,8 +130,6 @@ typedef struct
     GPIO_PUPD_PULLDOWN,      /* 8  */    \
     GPIO_PUPD_PULLDOWN,      /* 9  */    \
     GPIO_PUPD_PULLDOWN,      /* 10 */    \
-    GPIO_PUPD_PULLDOWN,      /* 11 */    \
-    GPIO_PUPD_PULLDOWN,      /* 12 */    \
     GPIO_PUPD_PULLDOWN,      /* 13 */    \
     GPIO_PUPD_PULLDOWN,      /* 14 */    \
     GPIO_PUPD_PULLDOWN,      /* 15 */    \
@@ -143,7 +139,7 @@ typedef struct
 #define MAX31865_SPI_SCLK       GPIO5
 #define MAX31865_SPI_MISO       GPIO6
 #define MAX31865_SPI_MOSI       GPIO7
-#define MAX31865_SPI_CS_PIN0GPIO0
+#define MAX31865_SPI_CS_PIN0    GPIO0
 #define MAX31865_DRDY_PORT      GPIOA
 #define MAX31865_DRDY_PIN       GPIO1
 
@@ -162,10 +158,11 @@ typedef struct
 
 extern uint32_t ext_adc_cs;
 
-#define MAX31865_SPI_CS_0     MAX31865_SPI_CS_PIN0
-// TODO: #define MAX31865_SPI_CS_1     MAX31865_SPI_CS_PIN1
+#define MAX31865_RTD_EXTERNAL   MAX31865_SPI_CS_PIN0
+
+// TODO: #define MAX31865_RTD_INTERNAL     MAX31865_SPI_CS_PIN1
 
 #define MAX31865_SPI            SPI1
-#define MAX31865_SPI_DIVIDER    SPI_CR1_BAUDRATE_FPCLK_DIV_8
+#define MAX31865_SPI_DIVIDER    SPI_CR1_BAUDRATE_FPCLK_DIV_256
 
 #endif //__PINMAPS__

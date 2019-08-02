@@ -64,14 +64,14 @@ void max31865_config(void);
  *
  * @param[in] chip Chip select
  * @param[in] addr Register address
- * @param[in] data Value to write
+ * @param[in] value Value to write
  *
  * RTD SPI Write function, that will write input data into the chosen register.
  *
  * @note
  * This function automatically adds write bit as needed by this device.
  */
-void max31865_write_register(uint8_t addr, uint8_t data);
+void max31865_write_register(uint8_t addr, uint8_t value);
 
 /**
  * @brief Read from Register
@@ -94,6 +94,12 @@ uint8_t max31865_read_register(uint8_t addr);
 void max31865_start_reading(uint8_t chip);
 
 /**
+ * @brief Wait for temperature reading to complete
+ *
+ */
+void max31865_wait_for_data_ready(void);
+
+/**
  *
  * @brief Read Temperature
  *
@@ -102,7 +108,7 @@ void max31865_start_reading(uint8_t chip);
  * @param[in] chip Chip select
  * @retval Raw temperature data
  */
-uint16_t max31865_read_temperature(uint8_t chip);
+int16_t max31865_read_temperature(uint8_t chip);
 
 /**
  * @brief Convert a temperature value from raw->scaled
@@ -120,8 +126,8 @@ uint16_t max31865_read_temperature(uint8_t chip);
  * sensor in use. Input the value of the resistor used in Ohms to get correct
  * data.
  */
-double max31865_convert_temperature(uint16_t raw_value,
-    uint16_t ref_resistance);
+double max31865_convert_temperature(int16_t raw_value,
+                                    uint16_t ref_resistance);
 
 #ifdef __cplusplus
 } // extern "C"

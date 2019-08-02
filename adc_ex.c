@@ -1,4 +1,5 @@
 #include <inttypes.h>
+#include <stdio.h>
 
 #include "max31865_adc.h"
 #include "log.h"
@@ -30,7 +31,46 @@ void adcs_ex_init()
     spi_enable(MAX31865_SPI);
     max31865_config();
 
-platform_raw_msg("adcs_ex_init: complete");
+    platform_raw_msg("adcs_ex_init: complete");
+
+uint32_t i = 0;
+char buffer[32];
+int16_t itemp;
+double dtemp;
+
+for (i=0; i<100000; i++) { asm("nop"); }
+
+max31865_wait_for_data_ready();
+itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
+snprintf(buffer, 32, "ITEMP: %04X", itemp);
+platform_raw_msg(buffer);
+
+dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
+snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
+platform_raw_msg(buffer);
+
+for (i=0; i<1000000; i++) { asm("nop"); }
+
+max31865_wait_for_data_ready();
+itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
+snprintf(buffer, 32, "TEMP: %04X", itemp);
+platform_raw_msg(buffer);
+
+dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
+snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
+platform_raw_msg(buffer);
+
+for (i=0; i<1000000; i++) { asm("nop"); }
+
+max31865_wait_for_data_ready();
+itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
+snprintf(buffer, 32, "TEMP: %04X", itemp);
+platform_raw_msg(buffer);
+
+dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
+snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
+platform_raw_msg(buffer);
+
 }
 
 static void _adcs_ex_do_samples_cs(unsigned adc_offset)
@@ -63,7 +103,7 @@ void adcs_ex_do_samples()
     if (!(call_count % 2))
         return;
 
-    _adcs_ex_do_samples_cs(MAX31865_SPI_CS_0);
+    _adcs_ex_do_samples_cs(MAX31865_RTD_EXTERNAL);
     // TODO: sample for chip 1
 }
 
