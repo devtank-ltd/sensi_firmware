@@ -158,9 +158,10 @@ typedef struct
 
 extern uint32_t ext_adc_cs;
 
-#define MAX31865_RTD_EXTERNAL   MAX31865_SPI_CS_PIN0
+#define MAX31865_RTD_INTERNAL   MAX31865_SPI_CS_PIN0
 
-// TODO: #define MAX31865_RTD_INTERNAL     MAX31865_SPI_CS_PIN1
+// TODO: Need a chip select pin for external RTD probe controller chip
+// TODO: #define MAX31865_RTD_EXTERNAL     MAX31865_SPI_CS_PIN1
 
 #define MAX31865_SPI            SPI1
 #define MAX31865_SPI_DIVIDER    SPI_CR1_BAUDRATE_FPCLK_DIV_256

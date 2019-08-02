@@ -127,7 +127,7 @@ void max31865_init(void)
                 MAX31865_SPI_AF_GPIOS_F,
                 MAX31865_SPI_AF_GPIOs);
 
-    // TODO: CHIP1   gpio_mode_setup(MAX31865_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, MAX31865_SPI_CS_PIN1);
+    // TODO: CHIP1   gpio_mode_setup(MAX31865_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, MAX31865_RTD_EXTERNAL);
 
     spi_reset(MAX31865_SPI);
 
@@ -141,8 +141,8 @@ void max31865_init(void)
     spi_set_data_size(MAX31865_SPI, SPI_CR2_DS_8BIT);
 
     // Make sure that CS is deselected
-    max31865_disable_device(MAX31865_RTD_EXTERNAL);
-    // TODO: max31865_disable_device(MAX31865_RTD_INTERNAL);
+    max31865_disable_device(MAX31865_RTD_INTERNAL);
+    // TODO: max31865_disable_device(MAX31865_RTD_EXTERNAL);
 
 platform_raw_msg("max31865_init: complete");
 }
@@ -160,29 +160,13 @@ uint8_t data;
                      MAX31865_THREE_WIRE | \
                      MAX31865_FAULT_STATUS_CLEAR;
 
-platform_raw_msg("max31865 write config");
+    platform_raw_msg("max31865 write config");
 
-    max31865_enable_device(MAX31865_RTD_EXTERNAL);
+    max31865_enable_device(MAX31865_RTD_INTERNAL);
     max31865_write_register(MAX31865_WR_CONFIG, config);
-    max31865_disable_device(MAX31865_RTD_EXTERNAL);
+    max31865_disable_device(MAX31865_RTD_INTERNAL);
 
-// Sanity check - read back the config and fault status
-platform_raw_msg("read config");
-max31865_enable_device(MAX31865_RTD_EXTERNAL);
-data = max31865_read_register(MAX31865_CONFIG);
-max31865_disable_device(MAX31865_RTD_EXTERNAL);
-snprintf(buffer, 32, "Config: %02X", data);
-platform_raw_msg(buffer);
-
-
-platform_raw_msg("read fault status");
-max31865_enable_device(MAX31865_RTD_EXTERNAL);
-data = max31865_read_register(MAX31865_FAULT_STATUS);
-max31865_disable_device(MAX31865_RTD_EXTERNAL);
-snprintf(buffer, 32, "Fault status: %02X", data);
-platform_raw_msg(buffer);
-
-// TODO: Chip 1
+// TODO: External temperature probe
 //    max31865_enable_device(MAX31865_SPI_CS_1);
 //    max31865_write_register(MAX31865_CONFIG, config);
 //    max31865_disable_device(MAX31865_SPI_CS_1);

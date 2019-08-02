@@ -33,44 +33,45 @@ void adcs_ex_init()
 
     platform_raw_msg("adcs_ex_init: complete");
 
-uint32_t i = 0;
-char buffer[32];
-int16_t itemp;
-double dtemp;
+#if TEST_DIAGNOSTICS
+    uint32_t i = 0;
+    char buffer[32];
+    int16_t itemp;
+    double dtemp;
 
-for (i=0; i<100000; i++) { asm("nop"); }
+    for (i=0; i<100000; i++) { asm("nop"); }
 
-max31865_wait_for_data_ready();
-itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
-snprintf(buffer, 32, "ITEMP: %04X", itemp);
-platform_raw_msg(buffer);
+    max31865_wait_for_data_ready();
+    itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
+    snprintf(buffer, 32, "ITEMP: %04X", itemp);
+    platform_raw_msg(buffer);
 
-dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
-snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
-platform_raw_msg(buffer);
+    dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
+    snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
+    platform_raw_msg(buffer);
 
-for (i=0; i<1000000; i++) { asm("nop"); }
+    for (i=0; i<1000000; i++) { asm("nop"); }
 
-max31865_wait_for_data_ready();
-itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
-snprintf(buffer, 32, "TEMP: %04X", itemp);
-platform_raw_msg(buffer);
+    max31865_wait_for_data_ready();
+    itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
+    snprintf(buffer, 32, "TEMP: %04X", itemp);
+    platform_raw_msg(buffer);
 
-dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
-snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
-platform_raw_msg(buffer);
+    dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
+    snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
+    platform_raw_msg(buffer);
 
-for (i=0; i<1000000; i++) { asm("nop"); }
+    for (i=0; i<1000000; i++) { asm("nop"); }
 
-max31865_wait_for_data_ready();
-itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
-snprintf(buffer, 32, "TEMP: %04X", itemp);
-platform_raw_msg(buffer);
+    max31865_wait_for_data_ready();
+    itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
+    snprintf(buffer, 32, "TEMP: %04X", itemp);
+    platform_raw_msg(buffer);
 
-dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
-snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
-platform_raw_msg(buffer);
-
+    dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
+    snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
+    platform_raw_msg(buffer);
+#endif
 }
 
 static void _adcs_ex_do_samples_cs(unsigned adc_offset)
@@ -78,8 +79,9 @@ static void _adcs_ex_do_samples_cs(unsigned adc_offset)
 platform_raw_msg("_adcs_ex_do_samples_cs");
 for(unsigned n = 0; n < ARRAY_SIZE(channel_regs); n++)
     {
-max31865_start_reading(adc_offset);
-uint16_t raw_value = max31865_read_temperature(adc_offset);
+        max31865_start_reading(adc_offset);
+        max31865_wait_for_data_ready();
+        int16_t raw_value = max31865_read_temperature(adc_offset);
         double adc = max31865_convert_temperature(raw_value, MAX31865_REF_RESISTANCE_470);
 
         volatile adc_channel_info_t* channel_info = &adc_channel_info[adc_offset + n];
@@ -161,18 +163,18 @@ void adcs_ex_log()
 
 uint64_t adcs_ex_read_value(int32_t adc_offset)
 {
-platform_raw_msg("adcs_ex_read_value");
+    platform_raw_msg("adcs_ex_read_value");
 
-max31865_start_reading(adc_offset);
-
-uint16_t raw_value = max31865_read_temperature(adc_offset);
+    max31865_start_reading(adc_offset);
+    int16_t raw_value = max31865_read_temperature(adc_offset);
+    max31865_wait_for_data_ready();
     double adc_val = max31865_convert_temperature(raw_value,
-      MAX31865_REF_RESISTANCE_470);
+                                                  MAX31865_REF_RESISTANCE_470);
 
-platform_raw_msg("_adcs_ex_read_value - complete");
+    platform_raw_msg("_adcs_ex_read_value - complete");
 
-log_out("ADCEX : %ld", adc_offset);
-    log_out("Val   : %5.2f", adc_val);
+    log_out("ADCEX : %ld", adc_offset);
+        log_out("Val   : %5.2f", adc_val);
 
 return adc_val;
 }
