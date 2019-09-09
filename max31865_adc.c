@@ -152,8 +152,6 @@ void max31865_config(void)
 platform_raw_msg("max31865_config");
 
     // Device config - 3-wire, one-shot mode, vbias on, clear any faults
-char buffer[32];
-uint8_t data;
 
     uint8_t config = MAX31865_VBIAS_ON | \
                      MAX31865_CONVERSION_AUTO | \
