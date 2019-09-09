@@ -6,6 +6,22 @@
 #include <libopencm3/stm32/spi.h>
 
 
+
+static void _output_convertion(int16_t itemp)
+{
+    // Algorithm and magic numbers courtesy of MikroElektonica...
+    /*
+    coefficient = (referentResistance/400.0);
+
+    inputData >>= 1;
+    floatValue = (float)inputData * coefficient;
+    floatValue /= 32;
+    floatValue -= 256;
+    */
+    log_out("DTEMP: (((%i >> 1) * (%u / 400.0)) / 32) - 256", itemp, MAX31865_REF_RESISTANCE_470);
+}
+
+
 void adcs_ex_init()
 {
     platform_raw_msg("adcs_ex_init: start");
@@ -20,7 +36,6 @@ void adcs_ex_init()
     uint32_t i = 0;
     char buffer[32];
     int16_t itemp;
-    double dtemp;
 
     for (i=0; i<100000; i++) { asm("nop"); }
 
@@ -29,9 +44,7 @@ void adcs_ex_init()
     snprintf(buffer, 32, "ITEMP: %04X", itemp);
     platform_raw_msg(buffer);
 
-    dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
-    snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
-    platform_raw_msg(buffer);
+    _output_convertion(itemp);
 
     for (i=0; i<1000000; i++) { asm("nop"); }
 
@@ -40,9 +53,7 @@ void adcs_ex_init()
     snprintf(buffer, 32, "TEMP: %04X", itemp);
     platform_raw_msg(buffer);
 
-    dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
-    snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
-    platform_raw_msg(buffer);
+    _output_convertion(itemp);
 
     for (i=0; i<1000000; i++) { asm("nop"); }
 
@@ -51,9 +62,7 @@ void adcs_ex_init()
     snprintf(buffer, 32, "TEMP: %04X", itemp);
     platform_raw_msg(buffer);
 
-    dtemp = max31865_convert_temperature(itemp, MAX31865_REF_RESISTANCE_470);
-    snprintf(buffer, 32, "DTEMP: %5.2f", dtemp);
-    platform_raw_msg(buffer);
+    _output_convertion(itemp);
 #endif
 }
 
@@ -73,9 +82,7 @@ void adcs_ex_adc_log(unsigned adc)
     max31865_wait_for_data_ready();
     itemp = max31865_read_temperature(MAX31865_RTD_INTERNAL);
     log_out("TEMP: %04X", itemp);
-
-    // Algorithm and magic numbers courtesy of MikroElektonica...
-    log_out("DTEMP: (((%04i / 2.0) * (%04u / 400.0)) / 32) - 256", itemp, MAX31865_REF_RESISTANCE_470);
+    _output_convertion(itemp);
 }
 
 
