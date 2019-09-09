@@ -32,7 +32,6 @@ typedef struct
 static void pps_cb();
 static void adc_cb();
 static void adcex_cb();
-static void adcex_read_cb();
 static void input_cb();
 static void output_cb();
 static void count_cb();
@@ -47,7 +46,6 @@ static cmd_t cmds[] = {
     { "adcs",     "Print all ADCs.",         adcs_log},
     { "adcex",    "Print ADC EX.",           adcex_cb},
     { "adcexs",   "Print all ADC EX.",       adcs_ex_log},
-    { "X",   "Read ADC EX.",            adcex_read_cb},
     { "inputs",   "Print all inputs.",       inputs_log},
     { "outputs",  "Print all outputs.",      outputs_log},
     { "input",    "Print input.",            input_cb},
@@ -80,12 +78,6 @@ void adcex_cb()
 {
     unsigned adc = strtoul(rx_buffer + rx_pos, NULL, 10);
     adcs_ex_adc_log(adc);
-}
-
-void adcex_read_cb()
-{
-	// Read value - single conversion
-	adcs_ex_read_value(0);
 }
 
 

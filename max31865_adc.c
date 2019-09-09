@@ -240,21 +240,6 @@ int16_t max31865_read_temperature(uint8_t chip)
     return returnValue;
 }
 
-double max31865_convert_temperature(int16_t raw_value,
-                                    uint16_t ref_resistance)
-{
-    // Algorithm and magic numbers courtesy of MikroElektonica...
-
-    double value;
-    double coefficient = (ref_resistance/400.0);
-
-    raw_value >>= 1;
-    value = (double)raw_value * coefficient;
-    value /= 32;
-    value -= 256;
-
-    return value;
-}
 
 /* -------------------------------------------------------------------------- */
 /*
