@@ -79,7 +79,6 @@ static void _adcs_ex_do_samples_cs(unsigned adc_offset)
 platform_raw_msg("_adcs_ex_do_samples_cs");
 for(unsigned n = 0; n < ARRAY_SIZE(channel_regs); n++)
     {
-        max31865_start_reading(adc_offset);
         max31865_wait_for_data_ready();
         int16_t raw_value = max31865_read_temperature(adc_offset);
         double adc = max31865_convert_temperature(raw_value, MAX31865_REF_RESISTANCE_470);
