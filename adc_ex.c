@@ -75,7 +75,7 @@ void adcs_ex_adc_log(unsigned adc)
     log_out("TEMP: %04X", itemp);
 
     // Algorithm and magic numbers courtesy of MikroElektonica...
-    log_out("DTEMP: (((%04d / 2) * %04u) / 32) - 256", itemp, MAX31865_REF_RESISTANCE_470);
+    log_out("DTEMP: (((%04i / 2.0) * (%04u / 400.0)) / 32) - 256", itemp, MAX31865_REF_RESISTANCE_470);
 }
 
 
