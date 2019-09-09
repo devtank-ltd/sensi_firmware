@@ -105,7 +105,7 @@ void adcs_ex_do_samples()
     if (!(call_count % 2))
         return;
 
-    _adcs_ex_do_samples_cs(MAX31865_RTD_EXTERNAL);
+    _adcs_ex_do_samples_cs(MAX31865_RTD_INTERNAL);
     // TODO: sample for chip 1
 }
 
