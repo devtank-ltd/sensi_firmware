@@ -7,7 +7,7 @@
 
 
 
-static void _output_convertion(int16_t itemp)
+static void _output_adcex(unsigned adc, int16_t itemp)
 {
     // Algorithm and magic numbers courtesy of MikroElektonica...
     /*
@@ -18,7 +18,9 @@ static void _output_convertion(int16_t itemp)
     floatValue /= 32;
     floatValue -= 256;
     */
-    log_out("DTEMP: (((%i >> 1) * (%u / 400.0)) / 32) - 256", itemp, MAX31865_REF_RESISTANCE_470);
+    log_out("ADCEX: %u", adc);
+    log_out("RAW: %04X", itemp);
+    log_out("REAL: (((%i / 2) * (%u / 400.0)) / 32) - 256", itemp, MAX31865_REF_RESISTANCE_470);
 }
 
 
@@ -34,35 +36,25 @@ void adcs_ex_init()
 
 #if TEST_DIAGNOSTICS
     uint32_t i = 0;
-    char buffer[32];
     int16_t itemp;
 
     for (i=0; i<100000; i++) { asm("nop"); }
 
     max31865_wait_for_data_ready();
     itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
-    snprintf(buffer, 32, "ITEMP: %04X", itemp);
-    platform_raw_msg(buffer);
-
-    _output_convertion(itemp);
+    _output_adcex(0, itemp);
 
     for (i=0; i<1000000; i++) { asm("nop"); }
 
     max31865_wait_for_data_ready();
     itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
-    snprintf(buffer, 32, "TEMP: %04X", itemp);
-    platform_raw_msg(buffer);
-
-    _output_convertion(itemp);
+    _output_adcex(0, itemp);
 
     for (i=0; i<1000000; i++) { asm("nop"); }
 
     max31865_wait_for_data_ready();
     itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
-    snprintf(buffer, 32, "TEMP: %04X", itemp);
-    platform_raw_msg(buffer);
-
-    _output_convertion(itemp);
+    _output_adcex(0, itemp);
 #endif
 }
 
@@ -75,14 +67,11 @@ unsigned adcs_ex_get_count()
 
 void adcs_ex_adc_log(unsigned adc)
 {
-    adc = adc;
-
     int16_t itemp;
 
     max31865_wait_for_data_ready();
     itemp = max31865_read_temperature(MAX31865_RTD_INTERNAL);
-    log_out("TEMP: %04X", itemp);
-    _output_convertion(itemp);
+    _output_adcex(adc, itemp);
 }
 
 

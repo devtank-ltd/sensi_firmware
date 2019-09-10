@@ -88,6 +88,40 @@ class adc_t(io_board_prop_t):
         return self._avg_value
 
 
+class adcex_t(io_board_prop_t):
+    def __init__(self, index, parent):
+        io_board_prop_t.__init__(self, index, parent)
+        self._age = time.time()
+        self._raw_value = 0
+        self._real_value = 0
+
+    def update_values(self):
+        parent = self.parent()
+        r = parent.command("adcex %u" % self.index)
+        assert len(r) == 3
+        parts = [part.strip() for part in r[0].split(b':') ]
+        assert len(parts) == 2
+        assert parts[0] == b"ADCEX"
+        assert int(parts[1].split(b' ')[0]) == self.index
+        self._raw_value = int(r[1].split(b':')[1])
+        s = r[2].split(b':')[1]
+        assert min([c in "0123456789()/+-*. " for c in s])
+        self._real_value = eval(s)
+
+    def _refresh(self):
+        if not self._age or (time.time() - self._age) > 1:
+            self.update_values()
+
+    @property
+    def raw_value(self):
+        self._refresh()
+        return self._raw_value
+
+    @property
+    def real_value(self):
+        self._refresh()
+        return self._real_value
+
 
 class io_board_py_t(object):
     __LOG_START_SPACER = b"============{"
@@ -95,7 +129,8 @@ class io_board_py_t(object):
     __PROP_MAP = {b"ppss" : pps_t,
                   b"inputs" : input_t,
                   b"outputs" : output_t,
-                  b"adcs" : adc_t}
+                  b"adcs" : adc_t,
+                  b"adcexs" : adcex_t}
     __READTIME = 2
     __WRITEDELAY = 0.001 # Stop flooding STM32 faster than it can deal with
 
