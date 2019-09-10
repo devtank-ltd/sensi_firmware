@@ -39,28 +39,6 @@ typedef struct
 
 #define ADC_COUNT 10
 
-#define PPS_PORT_N_PINS             \
-{                                   \
-    {GPIOB, GPIO3},     /* PPS 0 */ \
-    {GPIOC, GPIO7},     /* PPS 1 */ \
-}
-
-
-#define PPS_EXTI      \
-{                     \
-    {TIM1, EXTI3},    \
-    {TIM14, EXTI7},   \
-}
-
-#define PPS_INIT                     \
-{                                    \
-    {RCC_TIM1, NVIC_EXTI2_3_IRQ },   \
-    {RCC_TIM14, NVIC_EXTI4_15_IRQ},  \
-}
-
-#define PPS0_EXTI_ISR        exti2_3_isr
-#define PPS1_EXTI_ISR        exti4_15_isr
-
 
 #define UART_CHANNELS                                                                                                     \
 {                                                                                                                         \
@@ -143,11 +121,11 @@ typedef struct
 #define MAX31865_DRDY_PORT      GPIOA
 #define MAX31865_DRDY_PIN       GPIO1
 
-#define SPI_PORT_N_PINS                        \
-{                                              \
-    {GPIOA, MAX31865_SPI_SCLK | MAX31865_SPI_MISO | MAX31865_SPI_MOSI}, /* SPI 1*/ \
-    {GPIOA, MAX31865_SPI_CS_PIN0},    /* SPI CS 0*/ \
-    {GPIOA, MAX31865_DRDY_PIN},       /* SPI DRDY*/ \
+#define SPI_PORT_N_PINS                             \
+{                                                   \
+    {GPIOA, GPIO5 | GPIO6 | GPIO7}, /* SPI 1*/      \
+    {GPIOA, GPIO0},                 /* SPI 1 CS 0*/ \
+    {GPIOA, GPIO1},                 /* SPI 1 DRDY*/ \
 }
 
 #define MAX31865_RRC_SPI_CLK RCC_SPI1

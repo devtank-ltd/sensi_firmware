@@ -118,7 +118,7 @@ def lookup_io_board(gpio_name):
 def print_io_board(gpio_name):
     role = lookup_io_board(gpio_name)
     if role:
-        print("%s = %s %u" % (gpio_name, role["name"], role[gpio_name]))
+        print("%s = %s %s" % (gpio_name, role["name"], role[gpio_name]))
 
 
 def lookup_connector(gpio_name, connector):
@@ -148,7 +148,7 @@ def print_connect(connector):
         if gpio.startswith("P"):
             role = lookup_io_board(gpio)
             if role:
-                print("%4s %2u %4s = %s %u" % (connector["name"], pin, gpio, role["name"], role[gpio]))
+                print("%4s %2u %4s = %s %s" % (connector["name"], pin, gpio, role["name"], role[gpio]))
             else:
                 print("%4s %2u %4s = <UNUSED>" % (connector["name"], pin, gpio))
         else:
@@ -181,10 +181,10 @@ def load_line(subject_map, line):
     name = parts[2].strip().replace("/", "").replace("\\","")
     name = name.replace("*","").strip()
     name = name.split("=")[0].strip()
-    type_num = name.split(" ")[1]
+    type_info = " ".join(name.split(" ")[1:])
     pins = [ p.strip()[4:] for p in pin.split('|') ]
     for pin in pins:
-        subject_map[port + pin] = int(type_num)
+        subject_map[port + pin] = type_info
 
 
 def load_uart_line(line):
@@ -194,9 +194,9 @@ def load_uart_line(line):
     name = parts[-1].strip().replace("/", "").replace("\\","")
     name = name.replace("*","").strip()
     name = name.split("=")[0].strip()
-    type_num = name.split(" ")[1]
+    type_info = " ".join(name.split(" ")[1:])
     for pin in pins:
-        UARTS[port + pin] = int(type_num)
+        UARTS[port + pin] = type_info
 
 
 
@@ -229,7 +229,7 @@ def main():
                 keys = list(role.keys())
                 keys.remove("name")
                 for k in keys:
-                    print("\t%5s %u" % (k, role[k]))
+                    print("\t%5s %s" % (k, role[k]))
             sys.exit(0)
         else:
             print('Not known GPIO or "roles"')
