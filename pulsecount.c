@@ -66,10 +66,12 @@ static void pulsecount_isr(unsigned pps)
         values->low_timer_count  = timer_count;
 }
 
-
+#ifdef PPS0_EXTI_ISR
 void PPS0_EXTI_ISR() { pulsecount_isr(0); }
+#endif
+#ifdef PPS1_EXTI_ISR
 void PPS1_EXTI_ISR() { pulsecount_isr(1); }
-
+#endif
 
 void pulsecount_second_boardary()
 {
