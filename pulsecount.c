@@ -11,6 +11,8 @@
 #include "pinmap.h"
 #include "timers.h"
 
+#ifdef PPS_PORT_N_PINS
+
 typedef struct
 {
     uint32_t timer;
@@ -66,12 +68,8 @@ static void pulsecount_isr(unsigned pps)
         values->low_timer_count  = timer_count;
 }
 
-#ifdef PPS0_EXTI_ISR
 void PPS0_EXTI_ISR() { pulsecount_isr(0); }
-#endif
-#ifdef PPS1_EXTI_ISR
 void PPS1_EXTI_ISR() { pulsecount_isr(1); }
-#endif
 
 void pulsecount_second_boardary()
 {
@@ -175,3 +173,11 @@ void pulsecount_log()
     for(unsigned n = 0; n < ARRAY_SIZE(pps_pins); n++)
         pulsecount_pps_log(n);
 }
+
+#else
+void pulsecount_init() {}
+void pulsecount_second_boardary() {}
+unsigned pulsecount_get_count() { return 0 ; }
+void pulsecount_pps_log(unsigned pps) { pps = pps;}
+void pulsecount_log() {}
+#endif //PPS_PORT_N_PINS
