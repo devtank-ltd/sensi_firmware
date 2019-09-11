@@ -30,10 +30,10 @@ static unsigned call_count = 0;
 static unsigned adc_index = ARRAY_SIZE(adc_channel_array) - 1;
 
 
+const port_n_pins_t port_n_pins[] = ADCS_PORT_N_PINS;
+
 void adcs_init()
 {
-    const port_n_pins_t port_n_pins[] = ADCS_PORT_N_PINS;
-
     for(unsigned n = 0; n < ARRAY_SIZE(port_n_pins); n++)
     {
         rcc_periph_clock_enable(PORT_TO_RCC(port_n_pins[n].port));
