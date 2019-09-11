@@ -61,40 +61,43 @@ static cmd_t cmds[] = {
 
 
 
+static unsigned _read_index(char ** pos)
+{
+    unsigned r = strtoul(rx_buffer + rx_pos, pos, 10);
+    if (r)
+        r--;
+    return r;
+}
+
 
 void pps_cb()
 {
-    unsigned pps = strtoul(rx_buffer + rx_pos, NULL, 10);
-
-    pulsecount_pps_log(pps);
+    pulsecount_pps_log(_read_index(NULL));
 }
 
 
 void adc_cb()
 {
-    unsigned adc = strtoul(rx_buffer + rx_pos, NULL, 10);
-    adcs_adc_log(adc);
+    adcs_adc_log(_read_index(NULL));
 }
 
 
 void adcex_cb()
 {
-    unsigned adc = strtoul(rx_buffer + rx_pos, NULL, 10);
-    adcs_ex_adc_log(adc);
+    adcs_ex_adc_log(_read_index(NULL));
 }
 
 
 void input_cb()
 {
-    unsigned input = strtoul(rx_buffer + rx_pos, NULL, 10);
-    inputs_input_log(input);
+    inputs_input_log(_read_index(NULL));
 }
 
 
 void output_cb()
 {
     char * pos = NULL;
-    unsigned output = strtoul(rx_buffer + rx_pos, &pos, 10);
+    unsigned output = _read_index(&pos);
 
     if (pos)
         while(*pos == ' ')

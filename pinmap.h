@@ -31,14 +31,14 @@ typedef struct
 
 #define ADCS_PORT_N_PINS                            \
 {                                                   \
-    {GPIOA, GPIO4},      /* ADC 0  = Channel 4  */  \
-    {GPIOB, GPIO0},      /* ADC 1  = Channel 8  */  \
-    {GPIOB, GPIO1},      /* ADC 2  = Channel 9  */  \
-    {GPIOC, GPIO0},      /* ADC 3  = Channel 10 */  \
-    {GPIOC, GPIO1},      /* ADC 4  = Channel 11 */  \
-    {GPIOC, GPIO3},      /* ADC 5  = Channel 13 */  \
-    {GPIOC, GPIO4},      /* ADC 6  = Channel 14 */  \
-    {GPIOC, GPIO5},      /* ADC 7  = Channel 15 */  \
+    {GPIOA, GPIO4},      /* ADC 1  = Channel 4  */  \
+    {GPIOB, GPIO0},      /* ADC 2  = Channel 8  */  \
+    {GPIOB, GPIO1},      /* ADC 3  = Channel 9  */  \
+    {GPIOC, GPIO0},      /* ADC 4  = Channel 10 */  \
+    {GPIOC, GPIO1},      /* ADC 5  = Channel 11 */  \
+    {GPIOC, GPIO3},      /* ADC 6  = Channel 13 */  \
+    {GPIOC, GPIO4},      /* ADC 7  = Channel 14 */  \
+    {GPIOC, GPIO5},      /* ADC 8  = Channel 15 */  \
 }
 
 #define ADC_CHANNELS  {4,6,7,8,9,10,11,13,14,15}
@@ -56,19 +56,18 @@ typedef struct
 
 #define INPUTS_PORT_N_PINS              \
 {                                       \
-    {GPIOC, GPIO12},   /* INPUT 0 */    \
-    {GPIOA, GPIO15},   /* INPUT 1 */    \
-    {GPIOB, GPIO7},    /* INPUT 2 */    \
-    {GPIOA, GPIO8},    /* INPUT 3 */    \
-    {GPIOB, GPIO10},   /* INPUT 4 */    \
-    {GPIOB, GPIO4},    /* INPUT 5 */    \
-    {GPIOD, GPIO2},    /* INPUT 6 */    \
-    {GPIOC, GPIO2},    /* INPUT 7 */    \
+    {GPIOC, GPIO12},   /* INPUT 1 */    \
+    {GPIOA, GPIO15},   /* INPUT 2 */    \
+    {GPIOB, GPIO7},    /* INPUT 3 */    \
+    {GPIOA, GPIO8},    /* INPUT 4 */    \
+    {GPIOB, GPIO10},   /* INPUT 5 */    \
+    {GPIOB, GPIO4},    /* INPUT 6 */    \
+    {GPIOD, GPIO2},    /* INPUT 7 */    \
+    {GPIOC, GPIO2},    /* INPUT 8 */    \
 }
 
 #define INPUT_PULL                \
 {                                 \
-    GPIO_PUPD_PULLUP,    /* 0 */  \
     GPIO_PUPD_PULLUP,    /* 1 */  \
     GPIO_PUPD_PULLUP,    /* 2 */  \
     GPIO_PUPD_PULLUP,    /* 3 */  \
@@ -76,6 +75,7 @@ typedef struct
     GPIO_PUPD_PULLUP,    /* 5 */  \
     GPIO_PUPD_PULLUP,    /* 6 */  \
     GPIO_PUPD_PULLUP,    /* 7 */  \
+    GPIO_PUPD_PULLUP,    /* 8 */  \
 }
 /*
  * NOTE: A13 and A14 will cause SWD problems.
@@ -83,36 +83,36 @@ typedef struct
 
 #define OUTPUTS_PORT_N_PINS              \
 {                                        \
-    {GPIOC, GPIO8},     /* OUTPUT 0 */   \
-    {GPIOC, GPIO6},     /* OUTPUT 1 */   \
-    {GPIOB, GPIO12},    /* OUTPUT 2 */   \
-    {GPIOB, GPIO11},    /* OUTPUT 3 */   \
-    {GPIOB, GPIO2},     /* OUTPUT 4 */   \
-    {GPIOB, GPIO6},     /* OUTPUT 5 */   \
-    {GPIOB, GPIO14},    /* OUTPUT 6 */   \
-    {GPIOB, GPIO15},    /* OUTPUT 7 */   \
-    {GPIOA, GPIO9},     /* OUTPUT 8 */   \
-    {GPIOC, GPIO13},    /* OUTPUT 9 */   \
-    {GPIOB, GPIO5},     /* OUTPUT 10 */  \
-    {GPIOB, GPIO8},     /* OUTPUT 11 */  \
-    {GPIOB, GPIO9},     /* OUTPUT 12 */  \
+    {GPIOC, GPIO8},     /* OUTPUT 1 */   \
+    {GPIOC, GPIO6},     /* OUTPUT 2 */   \
+    {GPIOB, GPIO12},    /* OUTPUT 3 */   \
+    {GPIOB, GPIO11},    /* OUTPUT 4 */   \
+    {GPIOB, GPIO2},     /* OUTPUT 5 */   \
+    {GPIOB, GPIO6},     /* OUTPUT 6 */   \
+    {GPIOB, GPIO14},    /* OUTPUT 7 */   \
+    {GPIOB, GPIO15},    /* OUTPUT 8 */   \
+    {GPIOA, GPIO9},     /* OUTPUT 9 */   \
+    {GPIOC, GPIO13},    /* OUTPUT 10 */   \
+    {GPIOB, GPIO5},     /* OUTPUT 11 */  \
+    {GPIOB, GPIO8},     /* OUTPUT 12 */  \
+    {GPIOB, GPIO9},     /* OUTPUT 13 */  \
 }
 
 #define OUTPUT_PULL                      \
 {                                        \
-    GPIO_PUPD_PULLDOWN,      /* 0  */    \
     GPIO_PUPD_PULLDOWN,      /* 1  */    \
     GPIO_PUPD_PULLDOWN,      /* 2  */    \
     GPIO_PUPD_PULLDOWN,      /* 3  */    \
     GPIO_PUPD_PULLDOWN,      /* 4  */    \
-    GPIO_PUPD_PULLUP,        /* 5  */    \
+    GPIO_PUPD_PULLDOWN,      /* 5  */    \
     GPIO_PUPD_PULLUP,        /* 6  */    \
     GPIO_PUPD_PULLUP,        /* 7  */    \
-    GPIO_PUPD_PULLDOWN,      /* 8  */    \
+    GPIO_PUPD_PULLUP,        /* 8  */    \
     GPIO_PUPD_PULLDOWN,      /* 9  */    \
-    GPIO_PUPD_PULLDOWN,      /* 10 */    \
+    GPIO_PUPD_PULLDOWN,      /* 10  */    \
     GPIO_PUPD_PULLDOWN,      /* 11 */    \
     GPIO_PUPD_PULLDOWN,      /* 12 */    \
+    GPIO_PUPD_PULLDOWN,      /* 13 */    \
 }
 
 

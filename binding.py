@@ -154,7 +154,7 @@ class io_board_py_t(object):
             name  = parts[0].lower().strip()
             count = int(parts[1])
             for n in range(0, count):
-                child = io_board_py_t.__PROP_MAP[name](n, self)
+                child = io_board_py_t.__PROP_MAP[name](n + 1, self)
                 children = getattr(self, name.decode())
                 children += [child]
 
