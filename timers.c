@@ -42,7 +42,6 @@ void     timers_init()
 {
     rcc_periph_clock_enable(RCC_TIM2);
     rcc_periph_clock_enable(RCC_TIM3);
-    rcc_periph_clock_enable(RCC_TIM7);
 
     timer_disable_counter(TIM3);
 
