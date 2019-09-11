@@ -26,13 +26,9 @@ static void _output_adcex(unsigned adc, int16_t itemp)
 
 void adcs_ex_init()
 {
-    platform_raw_msg("adcs_ex_init: start");
-
     max31865_init();
     spi_enable(MAX31865_SPI);
     max31865_config();
-
-    platform_raw_msg("adcs_ex_init: complete");
 
 #if TEST_DIAGNOSTICS
     uint32_t i = 0;
