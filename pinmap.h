@@ -138,8 +138,6 @@ typedef struct
 #define MAX31865_SPI_AF_GPIOs   GPIO(SPI_PORT_N_PINS, 0).pins
 #define MAX31865_SPI_AF_GPIOS_F GPIO_AF0
 
-extern uint32_t ext_adc_cs;
-
 #define MAX31865_RTD_INTERNAL   MAX31865_SPI_CS_PIN0
 
 // TODO: Need a chip select pin for external RTD probe controller chip
