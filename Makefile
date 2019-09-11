@@ -44,7 +44,8 @@ SOURCES += main.c \
            outputs.c \
            ring.c \
            max31865_adc.c \
-           adc_ex.c
+           adc_ex.c \
+           pwm.c
 
 BUILD_DIR := build/
 PROJECT_NAME := firmware

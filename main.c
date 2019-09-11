@@ -20,6 +20,7 @@
 #include "inputs.h"
 #include "outputs.h"
 #include "uart_rings.h"
+#include "pwm.h"
 
 
 void hard_fault_handler(void)
@@ -42,7 +43,7 @@ int main(void) {
     usb_init();
     adcs_init();
     adcs_ex_init();
-//    pulsecount_init();
+    pwm_init();
     timers_init();
     inputs_init();
     outputs_init();

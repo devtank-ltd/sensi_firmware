@@ -94,11 +94,10 @@ typedef struct
     {GPIOB, GPIO14},    /* OUTPUT 6 */   \
     {GPIOB, GPIO15},    /* OUTPUT 7 */   \
     {GPIOA, GPIO9},     /* OUTPUT 8 */   \
-    {GPIOA, GPIO10},    /* OUTPUT 9 */   \
-    {GPIOC, GPIO13},    /* OUTPUT 12 */  \
-    {GPIOB, GPIO5},     /* OUTPUT 13 */  \
-    {GPIOB, GPIO8},     /* OUTPUT 14 */  \
-    {GPIOB, GPIO9},     /* OUTPUT 15 */  \
+    {GPIOC, GPIO13},    /* OUTPUT 9 */   \
+    {GPIOB, GPIO5},     /* OUTPUT 10 */  \
+    {GPIOB, GPIO8},     /* OUTPUT 11 */  \
+    {GPIOB, GPIO9},     /* OUTPUT 12 */  \
 }
 
 #define OUTPUT_PULL                      \
@@ -114,9 +113,8 @@ typedef struct
     GPIO_PUPD_PULLDOWN,      /* 8  */    \
     GPIO_PUPD_PULLDOWN,      /* 9  */    \
     GPIO_PUPD_PULLDOWN,      /* 10 */    \
-    GPIO_PUPD_PULLDOWN,      /* 13 */    \
-    GPIO_PUPD_PULLDOWN,      /* 14 */    \
-    GPIO_PUPD_PULLDOWN,      /* 15 */    \
+    GPIO_PUPD_PULLDOWN,      /* 11 */    \
+    GPIO_PUPD_PULLDOWN,      /* 12 */    \
 }
 
 
@@ -149,5 +147,15 @@ extern uint32_t ext_adc_cs;
 
 #define MAX31865_SPI            SPI1
 #define MAX31865_SPI_DIVIDER    SPI_CR1_BAUDRATE_FPCLK_DIV_256
+
+#define PWM_PORT_N_PINS           \
+{                                 \
+    {GPIOA, GPIO10},    /* PWM */ \
+}
+
+#define PWM_GPIO_FUNC      \
+{                          \
+    GPIO_AF1,              \
+}
 
 #endif //__PINMAPS__

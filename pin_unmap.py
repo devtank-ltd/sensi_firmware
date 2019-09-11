@@ -12,6 +12,7 @@ UARTS={"name":"UART"}
 SPI={"name":"SPI"}
 LEDS={"name":"LED"}
 USB={"name":"USB"}
+PWM={"name":"PWM"}
 
 roles = [
 ADCs,
@@ -21,7 +22,8 @@ PPS,
 UARTS,
 SPI,
 LEDS,
-USB]
+USB,
+PWM]
 
 CN7={
     "name": "CN7",

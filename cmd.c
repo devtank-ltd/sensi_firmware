@@ -15,6 +15,7 @@
 #include "inputs.h"
 #include "outputs.h"
 #include "timers.h"
+#include "pwm.h"
 
 static char   * rx_buffer;
 static unsigned rx_buffer_len = 0;
@@ -36,6 +37,7 @@ static void input_cb();
 static void output_cb();
 static void count_cb();
 static void all_cb();
+static void pwm_cb();
 static void version_cb();
 
 
@@ -52,6 +54,7 @@ static cmd_t cmds[] = {
     { "output",   "Get/set output on/off.",  output_cb},
     { "count",    "Counts of controls.",     count_cb},
     { "all",      "Print everything.",       all_cb},
+    { "pwm",      "Get/set PWM",             pwm_cb},
     { "version",  "Print version.",          version_cb},
     { NULL },
 };
@@ -93,10 +96,11 @@ void output_cb()
     char * pos = NULL;
     unsigned output = strtoul(rx_buffer + rx_pos, &pos, 10);
 
-    while(*pos == ' ')
-        pos++;
+    if (pos)
+        while(*pos == ' ')
+            pos++;
 
-    if (*pos)
+    if (pos && *pos)
     {
         bool on_off = (strtoul(pos, NULL, 10))?true:false;
 
@@ -123,6 +127,31 @@ void all_cb()
     inputs_log();
     outputs_log();
     adcs_log();
+}
+
+
+void pwm_cb()
+{
+    char * pos = NULL;
+    unsigned freq = strtoul(rx_buffer + rx_pos, &pos, 10);
+    unsigned duty;
+
+    if (pos)
+        while(*pos == ' ')
+            pos++;
+
+    if (pos && *pos)
+    {
+        duty = strtoul(pos, NULL, 10);
+
+        pwm_set(freq, duty);
+    }
+    else
+    {
+        pwm_get(&freq, &duty);
+        log_out("PWM Freq : %u", freq);
+        log_out("PWM Duty : %u", duty);
+    }
 }
 
 
