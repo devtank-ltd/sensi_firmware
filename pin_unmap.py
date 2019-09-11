@@ -10,6 +10,7 @@ OUTPUTS={"name":"OUTPUT"}
 PPS={"name":"PPS"}
 UARTS={"name":"UART"}
 SPI={"name":"SPI"}
+I2C={"name":"I2C"}
 LEDS={"name":"LED"}
 USB={"name":"USB"}
 PWM={"name":"PWM"}
@@ -21,6 +22,7 @@ OUTPUTS,
 PPS,
 UARTS,
 SPI,
+I2C,
 LEDS,
 USB,
 PWM]

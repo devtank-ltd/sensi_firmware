@@ -64,7 +64,6 @@ typedef struct
     {GPIOB, GPIO4},    /* INPUT 5 */    \
     {GPIOD, GPIO2},    /* INPUT 6 */    \
     {GPIOC, GPIO2},    /* INPUT 7 */    \
-    {GPIOB, GPIO13},   /* INPUT 8 */    \
 }
 
 #define INPUT_PULL                \
@@ -77,7 +76,6 @@ typedef struct
     GPIO_PUPD_PULLUP,    /* 5 */  \
     GPIO_PUPD_PULLUP,    /* 6 */  \
     GPIO_PUPD_PULLUP,    /* 7 */  \
-    GPIO_PUPD_PULLUP,    /* 8 */  \
 }
 /*
  * NOTE: A13 and A14 will cause SWD problems.
@@ -145,6 +143,13 @@ typedef struct
 
 #define MAX31865_SPI            SPI1
 #define MAX31865_SPI_DIVIDER    SPI_CR1_BAUDRATE_FPCLK_DIV_256
+
+#define I2C_PORT_N_PINS                             \
+{                                                   \
+    {GPIOB, GPIO13},               /* I2C SCL */    \
+    {GPIOC, GPIO14},               /* I2C SDA */    \
+}
+
 
 #define PWM_PORT_N_PINS           \
 {                                 \
