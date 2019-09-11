@@ -11,6 +11,7 @@ PPS={"name":"PPS"}
 UARTS={"name":"UART"}
 SPI={"name":"SPI"}
 LEDS={"name":"LED"}
+USB={"name":"USB"}
 
 roles = [
 ADCs,
@@ -19,7 +20,8 @@ OUTPUTS,
 PPS,
 UARTS,
 SPI,
-LEDS]
+LEDS,
+USB]
 
 CN7={
     "name": "CN7",

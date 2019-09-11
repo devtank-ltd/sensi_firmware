@@ -23,6 +23,12 @@ typedef struct
 #define LED_PORT   GPIO(LED_PORT_N_PINS, 0).port
 #define LED_PIN    GPIO(LED_PORT_N_PINS, 0).pins
 
+#define USB_N_PINS
+{
+    {GPIOA, GPIO12},    /* USB DP */
+    {GPIOA, GPIO11},    /* USB DM */
+}
+
 #define ADCS_PORT_N_PINS                            \
 {                                                   \
     {GPIOA, GPIO4},      /* ADC 0  = Channel 4  */  \
