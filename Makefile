@@ -38,7 +38,6 @@ SOURCES += main.c \
            cmd.c \
            usb_uarts.c \
            adcs.c \
-           pulsecount.c \
            timers.c \
            inputs.c \
            outputs.c \

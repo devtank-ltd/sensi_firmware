@@ -29,13 +29,13 @@ void pwm_init()
 
     timer_set_period(PWM_TIMER,48000000/48);
 
-    timer_disable_oc_output(PWM_TIMER, TIM_OC1);
-    timer_set_oc_mode(PWM_TIMER, TIM_OC1, TIM_OCM_PWM1);
-    timer_enable_oc_output(PWM_TIMER, TIM_OC1);
+    timer_disable_oc_output(PWM_TIMER, PWM_TIMER_CH);
+    timer_set_oc_mode(PWM_TIMER, PWM_TIMER_CH, TIM_OCM_PWM1);
+    timer_enable_oc_output(PWM_TIMER, PWM_TIMER_CH);
 
     timer_enable_counter(PWM_TIMER);
 
-    timer_set_oc_value(PWM_TIMER, TIM_OC1, 0);
+    timer_set_oc_value(PWM_TIMER, PWM_TIMER_CH, 0);
     
     const port_n_pins_t port_n_pins[] = PWM_PORT_N_PINS;
 
@@ -56,9 +56,7 @@ void pwm_set(unsigned freq, unsigned duty)
 {
     timer_set_period(PWM_TIMER, 48000000/48/freq);
 
-    duty = 100 - duty;
-
-    timer_set_oc_value(PWM_TIMER, TIM_OC1, 48000000/48/freq * duty / 2 / 100);
+    timer_set_oc_value(PWM_TIMER, PWM_TIMER_CH, 48000000/48/freq * duty / 100);
 
     timer_set_counter(PWM_TIMER, 0);
 

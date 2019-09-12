@@ -149,17 +149,18 @@ typedef struct
     {GPIOC, GPIO14},               /* I2C SDA */    \
 }
 
-#define PWM_TIMER      TIM1
-#define RCC_PWM_TIMER  RCC_TIM1
+#define PWM_TIMER      TIM3
+#define PWM_TIMER_CH   TIM_OC1
+#define RCC_PWM_TIMER  RCC_TIM3
 
 #define PWM_PORT_N_PINS           \
 {                                 \
-    {GPIOA, GPIO10},    /* PWM */ \
+    {GPIOC, GPIO6},    /* PWM */ \
 }
 
 #define PWM_GPIO_FUNC      \
 {                          \
-    GPIO_AF1,              \
+    GPIO_AF0,              \
 }
 
 #endif //__PINMAPS__

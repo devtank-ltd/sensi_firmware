@@ -42,7 +42,7 @@ int main(void) {
     cmds_init();
     usb_init();
     adcs_init();
-    adcs_ex_init();
+    //adcs_ex_init();
     pwm_init();
     timers_init();
     inputs_init();
