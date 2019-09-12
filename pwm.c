@@ -14,28 +14,28 @@ static unsigned pwm_duty = 0;
 
 void pwm_init()
 {
-    rcc_periph_clock_enable(RCC_TIM1);
+    rcc_periph_clock_enable(RCC_PWM_TIMER);
 
-    timer_disable_counter(TIM1);
+    timer_disable_counter(PWM_TIMER);
 
-    timer_set_mode(TIM1,
+    timer_set_mode(PWM_TIMER,
         TIM_CR1_CKD_CK_INT,
         TIM_CR1_CMS_EDGE,
         TIM_CR1_DIR_UP);
-    timer_set_prescaler(TIM1, 48);
+    timer_set_prescaler(PWM_TIMER, 48);
 
-    timer_enable_preload(TIM1);
-    timer_continuous_mode(TIM1);
+    timer_enable_preload(PWM_TIMER);
+    timer_continuous_mode(PWM_TIMER);
 
-    timer_set_period(TIM1,48000000/48);
+    timer_set_period(PWM_TIMER,48000000/48);
 
-    timer_disable_oc_output(TIM1, TIM_OC1);
-    timer_set_oc_mode(TIM1, TIM_OC1, TIM_OCM_PWM1);
-    timer_enable_oc_output(TIM1, TIM_OC1);
+    timer_disable_oc_output(PWM_TIMER, TIM_OC1);
+    timer_set_oc_mode(PWM_TIMER, TIM_OC1, TIM_OCM_PWM1);
+    timer_enable_oc_output(PWM_TIMER, TIM_OC1);
 
-    timer_enable_counter(TIM1);
+    timer_enable_counter(PWM_TIMER);
 
-    timer_set_oc_value(TIM1, TIM_OC1, 0);
+    timer_set_oc_value(PWM_TIMER, TIM_OC1, 0);
     
     const port_n_pins_t port_n_pins[] = PWM_PORT_N_PINS;
 
@@ -54,13 +54,13 @@ void pwm_init()
 
 void pwm_set(unsigned freq, unsigned duty)
 {
-    timer_set_period(TIM1, 48000000/48/freq);
+    timer_set_period(PWM_TIMER, 48000000/48/freq);
 
     duty = 100 - duty;
 
-    timer_set_oc_value(TIM1, TIM_OC1, 48000000/48/freq * duty / 2 / 100);
+    timer_set_oc_value(PWM_TIMER, TIM_OC1, 48000000/48/freq * duty / 2 / 100);
 
-    timer_set_counter(TIM1, 0);
+    timer_set_counter(PWM_TIMER, 0);
 
     pwm_freq = freq;
     pwm_duty = duty;

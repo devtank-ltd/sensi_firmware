@@ -149,6 +149,8 @@ typedef struct
     {GPIOC, GPIO14},               /* I2C SDA */    \
 }
 
+#define PWM_TIMER      TIM1
+#define RCC_PWM_TIMER  RCC_TIM1
 
 #define PWM_PORT_N_PINS           \
 {                                 \
