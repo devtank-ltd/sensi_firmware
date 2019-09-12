@@ -149,12 +149,10 @@ void pwm_cb()
 
         pwm_set(freq, duty);
     }
-    else
-    {
-        pwm_get(&freq, &duty);
-        log_out("PWM Freq : %u", freq);
-        log_out("PWM Duty : %u", duty);
-    }
+
+    pwm_get(&freq, &duty);
+    log_out("PWM Freq : %u", freq);
+    log_out("PWM Duty : %u", duty);
 }
 
 
