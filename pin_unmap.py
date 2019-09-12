@@ -190,7 +190,9 @@ def load_line(subject_map, line):
     type_info = " ".join(name.split(" ")[1:])
     pins = [ p.strip()[4:] for p in pin.split('|') ]
     for pin in pins:
-        subject_map[port + pin] = type_info
+        key = port + pin
+        assert key not in subject_map, "Duplicate pin use %s" % key
+        subject_map[key] = type_info
 
 
 def load_uart_line(line):
@@ -202,7 +204,9 @@ def load_uart_line(line):
     name = name.split("=")[0].strip()
     type_info = " ".join(name.split(" ")[1:])
     for pin in pins:
-        UARTS[port + pin] = type_info
+        key = port + pin
+        assert key not in UARTS, "Duplicate pin use %s" % key
+        UARTS[key] = type_info
 
 
 
