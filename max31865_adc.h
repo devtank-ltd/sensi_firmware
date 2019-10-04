@@ -54,10 +54,12 @@ extern "C"{
 void max31865_init(void);
 
 /**
- * @brief Initialize MAX31865 chip(s)
+ * @brief Configure MAX31865 chip
+ * 
+ * @param[in] chip Chip select
  *
  */
-void max31865_config(void);
+void max31865_config(uint8_t chip);
 
 /**
  * @brief Write to Register
@@ -96,8 +98,9 @@ void max31865_start_reading(uint8_t chip);
 /**
  * @brief Wait for temperature reading to complete
  *
+ * @param[in] chip Chip select
  */
-void max31865_wait_for_data_ready(void);
+void max31865_wait_for_data_ready(uint8_t chip);
 
 /**
  *

@@ -29,14 +29,14 @@ typedef struct
     {GPIOA, GPIO11},    /* USB DM */  \
 }
 
-#define ADCS_PORT_N_PINS                             \
-{                                                    \
+#define ADCS_PORT_N_PINS                            \
+{                                                   \
     {GPIOA, GPIO0},      /* ADC 1  = Channel 0  */  \
-    {GPIOA, GPIO1},      /* ADC 2  = Channel 1  */  \
-    {GPIOA, GPIO4},      /* ADC 3  = Channel 4  */  \
-    {GPIOA, GPIO6},      /* ADC 4  = Channel 6  */  \
-    {GPIOA, GPIO7},      /* ADC 5  = Channel 7  */  \
-    {GPIOB, GPIO0},      /* ADC 6  = Channel 8  */  \
+    {GPIOA, GPIO2},      /* ADC 2  = Channel 2  */  \
+    {GPIOA, GPIO3},      /* ADC 3  = Channel 3  */  \
+    {GPIOA, GPIO4},      /* ADC 4  = Channel 4  */  \
+    {GPIOA, GPIO6},      /* ADC 5  = Channel 6  */  \
+    {GPIOA, GPIO7},      /* ADC 6  = Channel 7  */  \
     {GPIOB, GPIO1},      /* ADC 7  = Channel 9  */  \
     {GPIOC, GPIO0},      /* ADC 8  = Channel 10 */  \
     {GPIOC, GPIO1},      /* ADC 9  = Channel 11 */  \
@@ -46,15 +46,16 @@ typedef struct
     {GPIOC, GPIO5},      /* ADC 13 = Channel 15 */  \
 }
 
-#define ADC_CHANNELS  {0,1,4,6,7,8,9,10,11,12,13,14,15}
+#define ADC_CHANNELS  {0,2,3,4,6,7,9,10,11,12,13,14,15}
 
 
-#define UART_CHANNELS                                                                                                     \
-{                                                                                                                         \
-    { USART2, RCC_USART2, UART_2_SPEED, GPIOA, GPIO2  | GPIO3,  GPIO_AF1, NVIC_USART2_IRQ, UART2_PRIORITY }, /* UART 0 */ \
+#define UART_CHANNELS                                                                                                       \
+{                                                                                                                           \
+    { USART3, RCC_USART3, UART_3_SPEED, GPIOC, GPIO10 | GPIO11, GPIO_AF1, NVIC_USART3_4_IRQ, UART3_PRIORITY }, /* UART 0 */ \
+    { USART4, RCC_USART4, UART_4_SPEED, GPIOA, GPIO1  | GPIO0,  GPIO_AF4, NVIC_USART3_4_IRQ, UART4_PRIORITY }, /* UART 1 */ \
 }
 
-#define UART_CHANNELS_COUNT 1
+#define UART_CHANNELS_COUNT 2
 
 
 #define INPUTS_PORT_N_PINS              \
@@ -118,16 +119,33 @@ typedef struct
 #define MAX31865_SPI_SCLK       GPIO5
 #define MAX31865_SPI_MISO       GPIO6
 #define MAX31865_SPI_MOSI       GPIO7
-#define MAX31865_SPI_CS_PIN0    GPIO0
 #define MAX31865_DRDY_PORT      GPIOA
+
+#define MAX31865_SPI_CS_PIN0    GPIO0
 #define MAX31865_DRDY_PIN       GPIO1
 
 #define SPI_PORT_N_PINS                             \
 {                                                   \
     {GPIOA, GPIO5 | GPIO6 | GPIO7}, /* SPI 1*/      \
-    {GPIOA, GPIO0},                 /* SPI 1 CS 0*/ \
-    {GPIOA, GPIO1},                 /* SPI 1 DRDY*/ \
 }
+
+#define RTD_CS_PORT_N_PINS               \
+{                                        \
+    {GPIOA, GPIO8},   /* RTN_CS 1 */     \
+    {GPIOC, GPIO9},   /* RTN_CS 2 */     \
+    {GPIOB, GPIO14},  /* RTN_CS 3 */     \
+    {GPIOC, GPIO7},   /* RTN_CS 4 */     \
+}
+
+#define RTD_INT_PORT_N_PINS              \
+{                                        \
+    {GPIOC, GPIO8},   /* RTN_INT 1 */    \
+    {GPIOA, GPIO9},   /* RTN_INT 2 */    \
+    {GPIOB, GPIO13},  /* RTN_INT 3 */    \
+    {GPIOB, GPIO15},  /* RTN_INT 4 */    \
+}
+
+#define RTD_COUNT 4
 
 #define MAX31865_RRC_SPI_CLK RCC_SPI1
 #define MAX31865_PORT           GPIO(SPI_PORT_N_PINS, 0).port
@@ -135,10 +153,6 @@ typedef struct
 #define MAX31865_SPI_AF_GPIOs   GPIO(SPI_PORT_N_PINS, 0).pins
 #define MAX31865_SPI_AF_GPIOS_F GPIO_AF0
 
-#define MAX31865_RTD_INTERNAL   MAX31865_SPI_CS_PIN0
-
-// TODO: Need a chip select pin for external RTD probe controller chip
-// TODO: #define MAX31865_RTD_EXTERNAL     MAX31865_SPI_CS_PIN1
 
 #define MAX31865_SPI            SPI1
 #define MAX31865_SPI_DIVIDER    SPI_CR1_BAUDRATE_FPCLK_DIV_256

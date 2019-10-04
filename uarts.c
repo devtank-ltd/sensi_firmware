@@ -30,8 +30,6 @@ typedef struct
 
 static const uart_channel_t uart_channels[] = UART_CHANNELS;
 
-#define UART_2_ISR  usart2_isr
-
 
 static void uart_setup(const uart_channel_t * channel)
 {
@@ -72,7 +70,23 @@ static bool uart_getc(uint32_t uart, char* c)
 }
 
 
-void UART_2_ISR(void)
+static void process_serial(unsigned uart)
+{
+    if (uart >= UART_CHANNELS_COUNT)
+        return;
+
+    char c;
+
+    if (!uart_getc(uart_channels[uart].usart, &c))
+    {
+        return;
+    }
+
+    uart_ring_in(uart, &c, 1);
+}
+
+
+void process_debug(void)
 {
     char c;
 
@@ -126,6 +140,13 @@ void UART_2_ISR(void)
             log_debug(DEBUG_SYS, "Disabling Debug via debug comms");
             log_debug_mask = 0;
     }
+}
+
+
+void usart3_4_isr(void)
+{
+    process_debug();
+    process_serial(1);
 }
 
 

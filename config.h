@@ -10,7 +10,8 @@
 #define PRINTF_FMT_CHECK(_fmt_arg, _el_arg)
 #endif
 
-#define UART2_PRIORITY 1
+#define UART3_PRIORITY 1
+#define UART4_PRIORITY 2
 #define USB_PRIORITY   2
 #define TIMER1_PRIORITY 2
 #define TIMER2_PRIORITY 1
@@ -32,7 +33,8 @@
 #define UART_0_IN_BUF_SIZE  CMD_LINELEN
 #define UART_0_OUT_BUF_SIZE 1024
 
-#define UART_2_SPEED 115200
+#define UART_3_SPEED 115200
+#define UART_4_SPEED 115200
 
 #define USB_DATA_PCK_SZ    64
 

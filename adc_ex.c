@@ -28,36 +28,14 @@ void adcs_ex_init()
 {
     max31865_init();
     spi_enable(MAX31865_SPI);
-    max31865_config();
-
-#if TEST_DIAGNOSTICS
-    uint32_t i = 0;
-    int16_t itemp;
-
-    for (i=0; i<100000; i++) { asm("nop"); }
-
-    max31865_wait_for_data_ready();
-    itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
-    _output_adcex(0, itemp);
-
-    for (i=0; i<1000000; i++) { asm("nop"); }
-
-    max31865_wait_for_data_ready();
-    itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
-    _output_adcex(0, itemp);
-
-    for (i=0; i<1000000; i++) { asm("nop"); }
-
-    max31865_wait_for_data_ready();
-    itemp = max31865_read_temperature(MAX31865_RTD_EXTERNAL);
-    _output_adcex(0, itemp);
-#endif
+    for(unsigned n = 0; n < RTD_COUNT; n++)
+        max31865_config(n);
 }
 
 
 unsigned adcs_ex_get_count()
 {
-    return 2;
+    return RTD_COUNT;
 }
 
 
@@ -65,14 +43,14 @@ void adcs_ex_adc_log(unsigned adc)
 {
     int16_t itemp;
 
-    max31865_wait_for_data_ready();
-    itemp = max31865_read_temperature(MAX31865_RTD_INTERNAL);
+    max31865_wait_for_data_ready(adc);
+    itemp = max31865_read_temperature(adc);
     _output_adcex(adc, itemp);
 }
 
 
 void adcs_ex_log()
 {
-    for(unsigned n = 0; n < 2; n++)
+    for(unsigned n = 0; n < RTD_COUNT; n++)
         adcs_ex_adc_log(n);
 }

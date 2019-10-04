@@ -51,6 +51,10 @@ const uint8_t MAX31865_DETECTION_CYCLE      = 0x06;  /**< Fault-detection cycle 
 const uint8_t MAX31865_FAULT_STATUS_CLEAR   = 0x02;  /**< Clear fault-status */
 const uint8_t MAX31865_50HZ                 = 0x01;  /**< Select 50Hz */
 
+
+const port_n_pins_t rtd_cs_port_n_pins[]  = RTD_CS_PORT_N_PINS;
+const port_n_pins_t rtd_int_port_n_pins[] = RTD_INT_PORT_N_PINS;
+
 /**
  * @brief MAX31865 transfer buffer
  */
@@ -79,13 +83,15 @@ static void max31865_delay(uint32_t delay)
 
 static void max31865_enable_device(uint8_t chip)
 {
-    gpio_clear(MAX31865_PORT, chip);
+    port_n_pins_t port_n_pin = rtd_cs_port_n_pins[chip];
+    gpio_clear(port_n_pin.port, port_n_pin.pins);
 }
 
 static void max31865_disable_device(uint8_t chip)
 {
+    port_n_pins_t port_n_pin = rtd_cs_port_n_pins[chip];
     max31865_delay(10000);
-    gpio_set(MAX31865_PORT, chip);
+    gpio_set(port_n_pin.port, port_n_pin.pins);
 }
 
 static uint8_t max31865_spi_send(uint8_t addr, uint8_t data)
@@ -114,8 +120,11 @@ void max31865_init(void)
     rcc_periph_clock_enable(MAX31865_RRC_SPI_CLK);
 
     // Assign GPIO
-    gpio_mode_setup(MAX31865_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, MAX31865_SPI_CS_PIN0);
-    gpio_mode_setup(MAX31865_DRDY_PORT, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, MAX31865_DRDY_PIN);
+    for(unsigned n = 0; n < RTD_COUNT; n++)
+    {
+        gpio_mode_setup(rtd_cs_port_n_pins[n].port, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE,   rtd_cs_port_n_pins[n].pins);
+        gpio_mode_setup(rtd_int_port_n_pins[n].port, GPIO_MODE_INPUT, GPIO_PUPD_PULLUP, rtd_int_port_n_pins[n].pins);
+    }
 
     // Assign alternative function 0 to SPI GPIO pins
     gpio_mode_setup(MAX31865_PORT,
@@ -140,14 +149,10 @@ void max31865_init(void)
 
     spi_set_data_size(MAX31865_SPI, SPI_CR2_DS_8BIT);
 
-    // Make sure that CS is deselected
-    max31865_disable_device(MAX31865_RTD_INTERNAL);
-    // TODO: max31865_disable_device(MAX31865_RTD_EXTERNAL);
-
 platform_raw_msg("max31865_init: complete");
 }
 
-void max31865_config(void)
+void max31865_config(uint8_t chip)
 {
 platform_raw_msg("max31865_config");
 
@@ -160,15 +165,9 @@ platform_raw_msg("max31865_config");
 
     platform_raw_msg("max31865 write config");
 
-    max31865_enable_device(MAX31865_RTD_INTERNAL);
+    max31865_enable_device(chip);
     max31865_write_register(MAX31865_WR_CONFIG, config);
-    max31865_disable_device(MAX31865_RTD_INTERNAL);
-
-// TODO: External temperature probe
-//    max31865_enable_device(MAX31865_SPI_CS_1);
-//    max31865_write_register(MAX31865_CONFIG, config);
-//    max31865_disable_device(MAX31865_SPI_CS_1);
-
+    max31865_disable_device(chip);
 }
 
 void max31865_write_register(uint8_t addr, uint8_t value)
@@ -199,9 +198,11 @@ platform_raw_msg(buffer);
     return xfer.data.data_hi;
 }
 
-void max31865_wait_for_data_ready(void)
+void max31865_wait_for_data_ready(uint8_t chip)
 {
-    while (gpio_get(MAX31865_PORT, MAX31865_DRDY_PIN))
+    port_n_pins_t port_n_pin = rtd_int_port_n_pins[chip];
+
+    while (gpio_get(port_n_pin.port, port_n_pin.pins))
     {
         // Empty wait
         asm("nop");
