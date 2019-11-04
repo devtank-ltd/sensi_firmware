@@ -70,22 +70,6 @@ static bool uart_getc(uint32_t uart, char* c)
 }
 
 
-static void process_serial(unsigned uart)
-{
-    if (uart >= UART_CHANNELS_COUNT)
-        return;
-
-    char c;
-
-    if (!uart_getc(uart_channels[uart].usart, &c))
-    {
-        return;
-    }
-
-    uart_ring_in(uart, &c, 1);
-}
-
-
 void process_debug(void)
 {
     char c;
@@ -146,7 +130,6 @@ void process_debug(void)
 void usart3_4_isr(void)
 {
     process_debug();
-    process_serial(1);
 }
 
 

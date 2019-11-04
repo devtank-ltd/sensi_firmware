@@ -52,10 +52,9 @@ typedef struct
 #define UART_CHANNELS                                                                                                       \
 {                                                                                                                           \
     { USART3, RCC_USART3, UART_3_SPEED, GPIOC, GPIO10 | GPIO11, GPIO_AF1, NVIC_USART3_4_IRQ, UART3_PRIORITY }, /* UART 0 */ \
-    { USART4, RCC_USART4, UART_4_SPEED, GPIOA, GPIO1  | GPIO0,  GPIO_AF4, NVIC_USART3_4_IRQ, UART4_PRIORITY }, /* UART 1 */ \
 }
 
-#define UART_CHANNELS_COUNT 2
+#define UART_CHANNELS_COUNT 1
 
 
 #define INPUTS_PORT_N_PINS              \
@@ -99,11 +98,10 @@ typedef struct
 
 #define OUTPUTS_PORT_N_PINS              \
 {                                        \
-    {GPIOA, GPIO9},     /* OUTPUT 1 */   \
-    {GPIOA, GPIO10},    /* OUTPUT 2 */   \
-    {GPIOA, GPIO13},    /* OUTPUT 3 */   \
-    {GPIOA, GPIO14},    /* OUTPUT 4 */   \
-    {GPIOC, GPIO8},     /* OUTPUT 5 */   \
+    {GPIOA, GPIO10},    /* OUTPUT 1 */   \
+    {GPIOD, GPIO2},     /* OUTPUT 2 */   \
+    {GPIOB, GPIO8},     /* OUTPUT 3 */   \
+    {GPIOB, GPIO9},     /* OUTPUT 4 */   \
 }
 
 #define OUTPUT_PULL                      \
@@ -112,21 +110,12 @@ typedef struct
     GPIO_PUPD_PULLDOWN,      /* 2  */    \
     GPIO_PUPD_PULLDOWN,      /* 3  */    \
     GPIO_PUPD_PULLDOWN,      /* 4  */    \
-    GPIO_PUPD_PULLDOWN,      /* 5  */    \
 }
 
 
-#define MAX31865_SPI_SCLK       GPIO5
-#define MAX31865_SPI_MISO       GPIO6
-#define MAX31865_SPI_MOSI       GPIO7
-#define MAX31865_DRDY_PORT      GPIOA
-
-#define MAX31865_SPI_CS_PIN0    GPIO0
-#define MAX31865_DRDY_PIN       GPIO1
-
 #define SPI_PORT_N_PINS                             \
 {                                                   \
-    {GPIOA, GPIO5 | GPIO6 | GPIO7}, /* SPI 1*/      \
+    {GPIOB, GPIO3 | GPIO4 | GPIO5}, /* SPI 1*/      \
 }
 
 #define RTD_CS_PORT_N_PINS               \
@@ -159,8 +148,8 @@ typedef struct
 
 #define I2C_PORT_N_PINS                             \
 {                                                   \
-    {GPIOB, GPIO13},               /* I2C SCL */    \
-    {GPIOC, GPIO14},               /* I2C SDA */    \
+    {GPIOB, GPIO6},               /* I2C SCL */    \
+    {GPIOB, GPIO7},               /* I2C SDA */    \
 }
 
 #define PWM_TIMER      TIM3
