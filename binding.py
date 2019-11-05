@@ -23,6 +23,22 @@ class pps_t(io_board_prop_t):
         return int(v)
 
 
+class pwm_data_t(object):
+    def __init__(self, freq, duty):
+        self.freq = freq
+        self.duty = duty
+
+
+class pwm_t(io_board_prop_t):
+    @property
+    def value(self):
+        parent = self.parent()
+        r = parent.command("pwm")
+        freq = int(r[0].split(b':')[1].strip())
+        duty = int(r[1].split(b':')[1].strip())
+        return pwm_data_t(freq, duty)
+
+
 class input_t(io_board_prop_t):
     @property
     def value(self):
