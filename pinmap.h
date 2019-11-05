@@ -46,12 +46,29 @@ typedef struct
     {GPIOC, GPIO5},      /* ADC 13 = Channel 15 */  \
 }
 
+/* schematics -> Connected to
+ *     ADC1  -> F4_OUT
+ *     ADC2  -> F3_OUT
+ *     ADC3  -> F2_OUT
+ *     ADC4  -> F1_OUT
+ *     ADC5  -> TH2_OUT
+ *     ADC6  -> AIN_BUF_CH3
+ *     ADC7  -> AIN_BUF_CH1
+ *     ADC8  -> I_MON
+ *     ADC9  -> TH4_OUT
+ *     ADC10 -> TH3_OUT
+ *     ADC11 -> TH1_OUT
+ *     ADC12 -> AIN_BUF_CH4
+ *     ADC13 -> AIN_BUF_CH2
+ */
+
+
 #define ADC_CHANNELS  {0,2,3,4,6,7,9,10,11,12,13,14,15}
 
 
 #define UART_CHANNELS                                                                                                       \
 {                                                                                                                           \
-    { USART3, RCC_USART3, UART_3_SPEED, GPIOC, GPIO10 | GPIO11, GPIO_AF1, NVIC_USART3_4_IRQ, UART3_PRIORITY }, /* UART 0 */ \
+    { USART3, RCC_USART3, UART_3_SPEED, GPIOB, GPIO10 | GPIO11, GPIO_AF4, NVIC_USART3_4_IRQ, UART3_PRIORITY }, /* UART 0 */ \
 }
 
 #define UART_CHANNELS_COUNT 1
@@ -59,21 +76,25 @@ typedef struct
 
 #define INPUTS_PORT_N_PINS              \
 {                                       \
-    {GPIOC, GPIO12},   /* INPUT 1 */    \
-    {GPIOA, GPIO15},   /* INPUT 2 */    \
-    {GPIOB, GPIO7},    /* INPUT 3 */    \
-    {GPIOA, GPIO8},    /* INPUT 4 */    \
-    {GPIOB, GPIO10},   /* INPUT 5 */    \
+    {GPIOA, GPIO15},   /* INPUT 1 */    \
+    {GPIOC, GPIO10},   /* INPUT 2 */    \
+    {GPIOC, GPIO11},   /* INPUT 3 */    \
+    {GPIOC, GPIO12},   /* INPUT 4 */    \
+    {GPIOB, GPIO12},   /* INPUT 5 */    \
     {GPIOC, GPIO13},   /* INPUT 6 */    \
-    {GPIOD, GPIO2},    /* INPUT 7 */    \
-    {GPIOB, GPIO2},    /* INPUT 8 */    \
-    {GPIOB, GPIO8},    /* INPUT 9 */    \
-    {GPIOB, GPIO6},    /* INPUT 10 */   \
-    {GPIOB, GPIO9},    /* INPUT 11 */   \
-    {GPIOC, GPIO7},    /* INPUT 12 */   \
-    {GPIOC, GPIO9},    /* INPUT 13 */   \
-    {GPIOB, GPIO11},   /* INPUT 14 */   \
+    {GPIOA, GPIO1},    /* INPUT 7 */    \
 }
+
+/* schematics -> Connected to
+ *     GPIO1 -> GPI01
+ *     GPIO2 -> GPIO2
+ *     GPIO3 -> GPIO3
+ *     GPIO4 -> GPIO4
+ *     GPIO5 -> Not Used
+ *     SB1   -> SB1
+ *     SB2   -> SB2
+*/
+
 
 #define INPUT_PULL                \
 {                                 \
@@ -84,17 +105,7 @@ typedef struct
     GPIO_PUPD_PULLUP,    /* 5 */  \
     GPIO_PUPD_PULLUP,    /* 6 */  \
     GPIO_PUPD_PULLUP,    /* 7 */  \
-    GPIO_PUPD_PULLUP,    /* 8 */  \
-    GPIO_PUPD_PULLUP,    /* 9 */  \
-    GPIO_PUPD_PULLUP,    /* 10 */ \
-    GPIO_PUPD_PULLUP,    /* 11 */ \
-    GPIO_PUPD_PULLUP,    /* 12 */ \
-    GPIO_PUPD_PULLUP,    /* 13 */ \
-    GPIO_PUPD_PULLUP,    /* 14 */ \
 }
-/*
- * NOTE: A13 and A14 will cause SWD problems.
- */
 
 #define OUTPUTS_PORT_N_PINS              \
 {                                        \
@@ -103,6 +114,13 @@ typedef struct
     {GPIOB, GPIO8},     /* OUTPUT 3 */   \
     {GPIOB, GPIO9},     /* OUTPUT 4 */   \
 }
+
+/* schematics -> Connected to
+ *   HS_OUT1 -> HS_CTRL_SW1
+ *   HS_OUT3 -> HS_CTRL_SW3
+ *   HS_OUT4 -> HS_CTRL_SW4
+ *   RL1     -> RL1_OUT
+*/
 
 #define OUTPUT_PULL                      \
 {                                        \
