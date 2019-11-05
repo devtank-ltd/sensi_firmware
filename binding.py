@@ -31,7 +31,7 @@ class pwm_data_t(object):
 
 class pwm_t(io_board_prop_t):
     @property
-    def value(self):
+    def values(self):
         parent = self.parent()
         r = parent.command("pwm")
         freq = int(r[0].split(b':')[1].strip())
