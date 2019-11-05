@@ -30,13 +30,51 @@ class pwm_data_t(object):
 
 
 class pwm_t(io_board_prop_t):
-    @property
-    def values(self):
+    def __init__(self, index, parent):
+        io_board_prop_t.__init__(self, index, parent)
+        self._freq = None
+        self._duty = None
+
+    def refresh(self):
         parent = self.parent()
         r = parent.command("pwm")
         freq = int(r[0].split(b':')[1].strip())
         duty = int(r[1].split(b':')[1].strip())
-        return pwm_data_t(freq, duty)
+        self._freq = freq
+        self._duty = duty
+
+    def _update(self, freq, duty):
+        parent = self.parent()
+        r = parent.command("pwm %u %u" % (freq, duty))
+        freq = int(r[0].split(b':')[1].strip())
+        duty = int(r[1].split(b':')[1].strip())
+        self._freq = freq
+        self._duty = duty
+
+    @property
+    def values(self):
+        self.refresh()
+        return pwm_data_t(self._freq, self._duty)
+
+    @property
+    def duty(self):
+        self.refresh()
+        return self._duty
+
+    @duty.setter
+    def duty(self, new_value):
+        self._update(self._freq, new_value)
+        return self._duty
+
+    @property
+    def frequency(self):
+        self.refresh()
+        return self._freq
+
+    @frequency.setter
+    def frequency(self, new_value):
+        self._update(new_value, self._duty)
+        return self._freq
 
 
 class input_t(io_board_prop_t):
