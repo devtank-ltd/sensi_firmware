@@ -86,13 +86,13 @@ typedef struct
 }
 
 /* schematics -> Connected to
- *     GPIO1 -> GPI01
- *     GPIO2 -> GPIO2
- *     GPIO3 -> GPIO3
- *     GPIO4 -> GPIO4
+ *     GPIO1 -> GPI01_EXT
+ *     GPIO2 -> GPIO2_EXT
+ *     GPIO3 -> GPIO3_EXT
+ *     GPIO4 -> GPIO4_EXT
  *     GPIO5 -> Not Used
- *     SB1   -> SB1
- *     SB2   -> SB2
+ *     SB1   -> GPIO5_EXT
+ *     SB2   -> GPIO6_EXT
 */
 
 
