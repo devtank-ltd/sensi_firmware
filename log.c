@@ -15,10 +15,10 @@ bool     log_async_log  = false;
 extern void platform_raw_msg(const char * s)
 {
     while(*s)
-        usart_send_blocking(USART2, *s++);
+        usart_send_blocking(USART3, *s++);
 
-    usart_send_blocking(USART2, '\n');
-    usart_send_blocking(USART2, '\r');
+    usart_send_blocking(USART3, '\n');
+    usart_send_blocking(USART3, '\r');
 }
 
 
