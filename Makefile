@@ -122,6 +122,21 @@ debug:
 cmd:
 	screen $$(ls /dev/serial/by-id/usb-Devtank_Ltd_IO_Board_Prototype-if00* -1 | head -n 1) 115200 8n1
 
+
+desktop_boot:
+	sudo gpioset 0 3=0
+	sudo gpioset 0 2=0
+	sudo gpioset 0 2=1
+
+desktop_reset:
+	sudo gpioset 0 2=0
+	sudo gpioset 0 2=1
+
+desktop_dfu:
+	sudo gpioset 0 3=1
+	sudo gpioset 0 2=0
+	sudo gpioset 0 2=1
+
 $(BUILD_DIR)stack_info : $(TARGET_ELF)
 	./avstack.pl $(OBJECTS) > $@
 
