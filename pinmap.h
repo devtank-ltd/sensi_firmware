@@ -122,6 +122,8 @@ typedef struct
  *   HS_OUT3 -> HS_CTRL_SW3
  *   HS_OUT4 -> HS_CTRL_SW4
  *   RL1     -> RL1_OUT
+ *
+ *   HS_OUT2 is the PWM.
 */
 
 #define OUTPUT_PULL                      \
