@@ -112,13 +112,15 @@ typedef struct
 #define OUTPUTS_PORT_N_PINS              \
 {                                        \
     {GPIOA, GPIO10},    /* OUTPUT 1 */   \
-    {GPIOD, GPIO2},     /* OUTPUT 2 */   \
-    {GPIOB, GPIO8},     /* OUTPUT 3 */   \
-    {GPIOB, GPIO9},     /* OUTPUT 4 */   \
+    {GPIOC, GPIO6},     /* OUTPUT 2 */   \
+    {GPIOD, GPIO2},     /* OUTPUT 3 */   \
+    {GPIOB, GPIO8},     /* OUTPUT 4 */   \
+    {GPIOB, GPIO9},     /* OUTPUT 5 */   \
 }
 
 /* schematics -> Connected to
  *   HS_OUT1 -> HS_CTRL_SW1
+ *   HS_OUT2 -> HS_CTRL_SW2
  *   HS_OUT3 -> HS_CTRL_SW3
  *   HS_OUT4 -> HS_CTRL_SW4
  *   RL1     -> RL1_OUT
@@ -130,6 +132,7 @@ typedef struct
     GPIO_PUPD_PULLDOWN,      /* 2  */    \
     GPIO_PUPD_PULLDOWN,      /* 3  */    \
     GPIO_PUPD_PULLDOWN,      /* 4  */    \
+    GPIO_PUPD_PULLDOWN,      /* 5  */    \
 }
 
 
