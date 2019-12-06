@@ -6,6 +6,7 @@
 
 
 #include "log.h"
+#include "pinmap.h"
 #include "uart_rings.h"
 
 uint32_t log_debug_mask = 0xFFFFFFFF; //Everything on boot, reduced on run.
@@ -15,10 +16,10 @@ bool     log_async_log  = false;
 extern void platform_raw_msg(const char * s)
 {
     while(*s)
-        usart_send_blocking(USART3, *s++);
+        usart_send_blocking(UART_DEBUG, *s++);
 
-    usart_send_blocking(USART3, '\n');
-    usart_send_blocking(USART3, '\r');
+    usart_send_blocking(UART_DEBUG, '\n');
+    usart_send_blocking(UART_DEBUG, '\r');
 }
 
 
