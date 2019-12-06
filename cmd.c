@@ -96,7 +96,7 @@ void output_cb()
     {
         bool on_off = (strtoul(pos, NULL, 10))?true:false;
 
-        log_out("Set output %02u to %s", output, (on_off)?"ON":"OFF");
+        log_out("Set output %02u to %s", output + 1, (on_off)?"ON":"OFF");
         outputs_set(output, on_off);
     }
     else output_output_log(output);

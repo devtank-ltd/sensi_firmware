@@ -149,7 +149,7 @@ void adcs_adc_log(unsigned adc)
 
     volatile adc_channel_info_t * channel_info = &adc_channel_info_cur[adc];
 
-    log_out("ADC : %u (Channel : %u)", adc, adc_channel_array[adc]);
+    log_out("ADC : %u (Channel : %u)", adc + 1, adc_channel_array[adc]);
     log_out("Min : %u", channel_info->min_value);
     log_out("Max : %u", channel_info->max_value);
     log_out("Avg : %"PRIu64" / %u", channel_info->total_value, channel_info->count);

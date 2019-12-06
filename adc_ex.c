@@ -18,7 +18,7 @@ static void _output_adcex(unsigned adc, int16_t itemp)
     floatValue /= 32;
     floatValue -= 256;
     */
-    log_out("ADCEX: %u", adc);
+    log_out("ADCEX: %u", adc + 1);
     log_out("RAW: %04X", itemp);
     log_out("REAL: (((%i / 2) * (%u / 400.0)) / 32) - 256", itemp, MAX31865_REF_RESISTANCE_470);
 }

@@ -36,7 +36,7 @@ void     inputs_input_log(unsigned input)
         return;
 
     const port_n_pins_t * input_gpio = &inputs[input];
-    log_out("Input %02u : %s", input,
+    log_out("Input %02u : %s", input + 1,
         (gpio_get(input_gpio->port, input_gpio->pins))?"ON":"OFF");
 }
 
