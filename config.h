@@ -27,8 +27,7 @@
 #define LOG_END_SPACER    "}============"
 #define LOG_SPACER        "============="
 
-#define DEFAULT_SPS 120000
-#define DEFAULT_ADC_EX_SPS 5000
+#define DEFAULT_SPS 130000  // divided by (adc count * 2) is 5000
 
 #define CMD_OUT_BUF_SIZE 1024
 

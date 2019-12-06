@@ -32,6 +32,8 @@ void tim2_isr(void)
 
 void     timers_init()
 {
+    rcc_periph_clock_enable(RCC_TIM2);
+
     timer_disable_counter(TIM2);
 
     timer_set_mode(TIM2,
