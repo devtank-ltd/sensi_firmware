@@ -16,7 +16,7 @@ typedef struct
 
 #define LED_PORT_N_PINS           \
 {                                 \
-    {GPIOC, GPIO10},  /* LED 0 */ \
+    {GPIOA, GPIO5},  /* LED 0 */ \
 }
 
 

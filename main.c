@@ -30,6 +30,12 @@ void hard_fault_handler(void)
 }
 
 
+void sys_tick_handler(void)
+{
+	gpio_toggle(LED_PORT, LED_PIN);
+}
+
+
 int main(void) {
     rcc_clock_setup_in_hsi48_out_48mhz();
     uarts_setup();
@@ -51,18 +57,19 @@ int main(void) {
     gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_PIN);
     gpio_clear(LED_PORT, LED_PIN);
 
+    systick_set_clocksource(STK_CSR_CLKSOURCE_EXT);
+    systick_set_reload(rcc_ahb_frequency / 8 / 1000 * TICK_MS);
+    STK_CVR = 0;
+    systick_counter_enable();
+    systick_interrupt_enable();
+
     log_out("Press 'D' for debug.");
     log_async_log = true;
 
     while(true)
     {
-        for(unsigned n = 0; n < rcc_ahb_frequency / 1000; n++)
-        {
-            uart_rings_in_drain();
-            uart_rings_out_drain();
-        }
-
-        gpio_toggle(LED_PORT, LED_PIN);
+        uart_rings_in_drain();
+        uart_rings_out_drain();
     }
 
     return 0;
