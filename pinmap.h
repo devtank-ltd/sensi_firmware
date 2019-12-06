@@ -139,7 +139,7 @@ typedef struct
 #define RTD_CS_PORT_N_PINS               \
 {                                        \
     {GPIOA, GPIO8},   /* RTN_CS 1 */     \
-    {GPIOC, GPIO9},   /* RTN_CS 2 */     \
+    {GPIOA, GPIO9},   /* RTN_CS 2 */     \
     {GPIOB, GPIO14},  /* RTN_CS 3 */     \
     {GPIOC, GPIO7},   /* RTN_CS 4 */     \
 }
@@ -147,7 +147,7 @@ typedef struct
 #define RTD_INT_PORT_N_PINS              \
 {                                        \
     {GPIOC, GPIO8},   /* RTN_INT 1 */    \
-    {GPIOA, GPIO9},   /* RTN_INT 2 */    \
+    {GPIOC, GPIO9},   /* RTN_INT 2 */    \
     {GPIOB, GPIO13},  /* RTN_INT 3 */    \
     {GPIOB, GPIO15},  /* RTN_INT 4 */    \
 }
