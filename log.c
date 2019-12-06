@@ -8,7 +8,7 @@
 #include "log.h"
 #include "uart_rings.h"
 
-uint32_t log_debug_mask = 0;
+uint32_t log_debug_mask = 0xFFFFFFFF; //Everything on boot, reduced on run.
 bool     log_async_log  = false;
 
 

@@ -96,19 +96,13 @@ static void max31865_disable_device(uint8_t chip)
 
 static uint8_t max31865_spi_send(uint8_t addr, uint8_t data)
 {
-char buffer[32];
-
     max31865_xfer_t xfer;
     xfer.reg.addr  = addr;
     xfer.reg.value = data;
 
-snprintf(buffer, 32, "XFER WR:%04X", xfer.buffer);
-platform_raw_msg(buffer);
-
+    log_debug(DEBUG_ADC_EX, "XFER WR:%04X", xfer.buffer);
     xfer.buffer = spi_xfer(MAX31865_SPI, xfer.buffer);
-
-snprintf(buffer, 32, "XFER RD:%04X", xfer.buffer);
-platform_raw_msg(buffer);
+    log_debug(DEBUG_ADC_EX, "XFER RD:%04X", xfer.buffer);
 
     return spi_xfer(MAX31865_SPI, data);
 }
@@ -149,12 +143,12 @@ void max31865_init(void)
 
     spi_set_data_size(MAX31865_SPI, SPI_CR2_DS_8BIT);
 
-platform_raw_msg("max31865_init: complete");
+    log_out("max31865_init: complete");
 }
 
 void max31865_config(uint8_t chip)
 {
-platform_raw_msg("max31865_config");
+    log_out("max31865_config chip %u", chip);
 
     // Device config - 3-wire, one-shot mode, vbias on, clear any faults
 
@@ -163,7 +157,7 @@ platform_raw_msg("max31865_config");
                      MAX31865_THREE_WIRE | \
                      MAX31865_FAULT_STATUS_CLEAR;
 
-    platform_raw_msg("max31865 write config");
+    log_out("max31865 write config chip %u", chip);
 
     max31865_enable_device(chip);
     max31865_write_register(MAX31865_WR_CONFIG, config);
@@ -172,28 +166,24 @@ platform_raw_msg("max31865_config");
 
 void max31865_write_register(uint8_t addr, uint8_t value)
 {
-platform_raw_msg("max31865_write_register");
     max31865_xfer_t reg;
     reg.reg.addr  = addr;
     reg.reg.value = value;
 
-char buffer[32];
-snprintf(buffer, 32, "Write:%04X", reg.buffer);
-platform_raw_msg(buffer);
+    log_debug(DEBUG_ADC_EX, "max31865_write_register addr:%u value:%u", addr, value);
     max31865_spi_send(addr, value);
+    log_debug(DEBUG_ADC_EX, "Writen:%04X", reg.buffer);
 }
 
 uint8_t max31865_read_register(uint8_t addr)
 {
-platform_raw_msg("read reg");
-char buffer[32];
-
     max31865_xfer_t xfer;
     xfer.reg.addr  = addr;
     xfer.reg.value = 0xFF;
+
+    log_debug(DEBUG_ADC_EX, "max31865_read_register addr:%u", addr);
     xfer.buffer = spi_xfer(MAX31865_SPI, xfer.buffer);
-snprintf(buffer, 32, "Read:%04X", xfer.buffer);
-platform_raw_msg(buffer);
+    log_debug(DEBUG_ADC_EX, "Read:%04X : %u", xfer.buffer, xfer.data.data_hi);
 
     return xfer.data.data_hi;
 }

@@ -97,12 +97,12 @@ void process_debug(void)
             }
             break;
         case 'X':
-        	if (log_debug_mask)
-        	{
-        		log_debug(DEBUG_SYS, "Poll ADCEX debug");
-        		log_debug_mask |= DEBUG_ADC_EX;
-        	}
-        	break;
+            if (log_debug_mask)
+            {
+                log_debug(DEBUG_SYS, "Enabled ADCEX debug");
+                log_debug_mask |= DEBUG_ADC_EX;
+            }
+            break;
 
         case 'U':
             if (log_debug_mask)

@@ -64,6 +64,7 @@ int main(void) {
     systick_interrupt_enable();
 
     log_out("Press 'D' for debug.");
+    log_debug_mask = 0;
     log_async_log = true;
 
     while(true)
