@@ -7,7 +7,7 @@
 
 
 
-static void _output_adcex(unsigned adc, int16_t itemp)
+static void _output_adcex(unsigned adc, uint16_t temp)
 {
     // Algorithm and magic numbers courtesy of MikroElektonica...
     /*
@@ -19,8 +19,8 @@ static void _output_adcex(unsigned adc, int16_t itemp)
     floatValue -= 256;
     */
     log_out("ADCEX: %u", adc + 1);
-    log_out("RAW: %04X", itemp);
-    log_out("REAL: (((%i / 2) * (%u / 400.0)) / 32) - 256", itemp, MAX31865_REF_RESISTANCE_470);
+    log_out("RAW: %04X", temp);
+    log_out("REAL: (((%u / 2) * (%u / 400.0)) / 32) - 256", temp, MAX31865_REF_RESISTANCE_470);
 }
 
 
@@ -41,11 +41,11 @@ unsigned adcs_ex_get_count()
 
 void adcs_ex_adc_log(unsigned adc)
 {
-    int16_t itemp;
+    uint16_t temp;
 
     max31865_wait_for_data_ready(adc);
-    itemp = max31865_read_temperature(adc);
-    _output_adcex(adc, itemp);
+    temp = max31865_read_temperature(adc);
+    _output_adcex(adc, temp);
 }
 
 

@@ -111,7 +111,7 @@ void max31865_wait_for_data_ready(uint8_t chip);
  * @param[in] chip Chip select
  * @retval Raw temperature data
  */
-int16_t max31865_read_temperature(uint8_t chip);
+uint16_t max31865_read_temperature(uint8_t chip);
 
 /**
  * @brief Convert a temperature value from raw->scaled

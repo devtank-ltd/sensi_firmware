@@ -217,7 +217,7 @@ void max31865_start_reading(uint8_t chip)
     max31865_disable_device(chip);
 }
 
-int16_t max31865_read_temperature(uint8_t chip)
+uint16_t max31865_read_temperature(uint8_t chip)
 {
     volatile uint16_t returnValue;
 
