@@ -22,6 +22,7 @@
 #include "uart_rings.h"
 #include "pwm.h"
 
+volatile unsigned uptime = 0;
 
 void hard_fault_handler(void)
 {
@@ -32,7 +33,8 @@ void hard_fault_handler(void)
 
 void sys_tick_handler(void)
 {
-	gpio_toggle(LED_PORT, LED_PIN);
+    gpio_toggle(LED_PORT, LED_PIN);
+    uptime += 1;
 }
 
 
@@ -56,6 +58,8 @@ int main(void) {
 
     gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_PIN);
     gpio_clear(LED_PORT, LED_PIN);
+
+    uptime = 0;
 
     systick_set_clocksource(STK_CSR_CLKSOURCE_EXT);
     systick_set_reload(rcc_ahb_frequency / 8 / 1000 * TICK_MS);

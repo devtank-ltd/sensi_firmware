@@ -194,9 +194,19 @@ void max31865_wait_for_data_ready(uint8_t chip)
     port_n_pins_t port_n_pin = rtd_int_port_n_pins[chip];
 
     log_debug(DEBUG_ADC_EX, "Wait for data ready on max31865 chip %u", chip);
+
+    unsigned start_time = uptime;
+
     while (gpio_get(port_n_pin.port, port_n_pin.pins))
     {
-        uart_rings_out_drain();
+        unsigned now = uptime;
+        unsigned delta = (now >= start_time)?(now-start_time):(0xFFFFFFFF - start_time + now);
+        if (delta > 4)
+        {
+            log_debug(DEBUG_ADC_EX, "Wait timed out. start:%u now:%u", start_time, now);
+            uart_rings_out_drain();
+            break;
+        }
     }
 }
 

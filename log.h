@@ -16,4 +16,7 @@ extern void log_debug(uint32_t flag, const char * s, ...) PRINTF_FMT_CHECK( 2, 3
 
 extern void log_init();
 
+extern volatile unsigned uptime;
+
+
 #endif //__LOG__
