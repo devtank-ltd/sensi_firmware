@@ -131,8 +131,6 @@ void max31865_init(void)
                 MAX31865_SPI_AF_GPIOS_F,
                 MAX31865_SPI_AF_GPIOs);
 
-    // TODO: CHIP1   gpio_mode_setup(MAX31865_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLUP, MAX31865_RTD_EXTERNAL);
-
     spi_reset(MAX31865_SPI);
 
     // Init as SPI master and set data size = 8-bits
