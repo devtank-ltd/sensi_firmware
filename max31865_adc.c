@@ -10,6 +10,7 @@
 #include <libopencm3/stm32/rcc.h>
 #include <libopencm3/stm32/gpio.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "log.h"
 #include "max31865_adc.h"
@@ -201,7 +202,12 @@ void max31865_wait_for_data_ready(uint8_t chip)
         unsigned delta = (now >= start_time)?(now-start_time):(0xFFFFFFFF - start_time + now);
         if (delta > 4)
         {
+            max31865_enable_device(chip);
+            uint8_t fault_reg = max31865_read_register(MAX31865_RTD_MSB);
+            max31865_disable_device(chip);
+
             log_debug(DEBUG_ADC_EX, "Wait timed out. start:%u now:%u", start_time, now);
+            log_debug(DEBUG_ADC_EX, "Fault Register : 0x%"PRIx8, fault_reg);
             uart_rings_out_drain();
             break;
         }
