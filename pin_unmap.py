@@ -14,6 +14,8 @@ I2C={"name":"I2C"}
 LEDS={"name":"LED"}
 USB={"name":"USB"}
 PWM={"name":"PWM"}
+RTD_CS={"name":"RTD_CS"}
+RTD_INT={"name":"RTD_INT"}
 
 roles = [
 ADCs,
@@ -25,7 +27,9 @@ SPI,
 I2C,
 LEDS,
 USB,
-PWM]
+PWM,
+RTD_CS,
+RTD_INT]
 
 CN7={
     "name": "CN7",
