@@ -1,5 +1,6 @@
 import os
 import sys
+import math
 import time
 import serial
 import weakref
@@ -158,9 +159,28 @@ class adcex_t(io_board_prop_t):
         assert parts[0] == b"ADCEX"
         assert int(parts[1].split(b' ')[0]) == self.index
         self._raw_value = int(r[1].split(b':')[1])
-        s = r[2].split(b':')[1]
-        assert min([c in "0123456789()/+-*. " for c in s])
-        self._real_value = eval(s)
+        r0 = ((self._raw_value * 470) / 0x8000) / 2
+        _RTD_A = 3.9083e-3
+        _RTD_B = -5.775e-7
+        Z1 = -_RTD_A
+        Z2 = _RTD_A * _RTD_A - (4 * _RTD_B)
+        Z3 = (4 * _RTD_B) / 100
+        Z4 = 2 * _RTD_B
+        temp = Z2 + (Z3 * r0)
+        temp = (math.sqrt(temp) + Z1) / Z4
+        if temp < 0:
+            rpoly = r0
+            temp = -242.02
+            temp += 2.2228 * rpoly
+            rpoly *= r0  # square
+            temp += 2.5859e-3 * rpoly
+            rpoly *= r0 # ^3
+            temp -= 4.8260e-6 * rpoly
+            rpoly *= r0  # ^4
+            temp -= 2.8183e-8 * rpoly
+            rpoly *= r0  # ^5
+            temp += 1.5243e-10 * rpoly
+        self._real_value = temp
 
     def _refresh(self):
         if not self._age or (time.time() - self._age) > 1:

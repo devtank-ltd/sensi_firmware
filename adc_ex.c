@@ -1,5 +1,6 @@
 #include <inttypes.h>
 #include <stdio.h>
+#include <inttypes.h>
 
 #include "max31865_adc.h"
 #include "log.h"
@@ -9,18 +10,8 @@
 
 static void _output_adcex(unsigned adc, uint16_t temp)
 {
-    // Algorithm and magic numbers courtesy of MikroElektonica...
-    /*
-    coefficient = (referentResistance/400.0);
-
-    inputData >>= 1;
-    floatValue = (float)inputData * coefficient;
-    floatValue /= 32;
-    floatValue -= 256;
-    */
     log_out("ADCEX: %u", adc + 1);
-    log_out("RAW: %04X", temp);
-    log_out("REAL: (((%u / 2) * (%u / 400.0)) / 32) - 256", temp, MAX31865_REF_RESISTANCE_470);
+    log_out("RAW: %"PRIu16, temp);
 }
 
 
