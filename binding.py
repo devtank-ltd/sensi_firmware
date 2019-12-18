@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 import sys
 import math
@@ -7,7 +8,21 @@ import weakref
 import serial.tools.list_ports
 
 
-_DEBUG = True if "DEBUG" in os.environ else False
+_debug_fnc = print if "DEBUG" in os.environ else None
+
+
+def debug_print(msg):
+    if _debug_fnc:
+        _debug_fnc(msg)
+
+def set_debug_print(_func):
+    global _debug_fnc
+    _debug_fnc = _func
+
+def get_debug_print():
+    return _debug_fnc
+
+
 
 class io_board_prop_t(object):
     def __init__(self, index, parent):
@@ -260,7 +275,6 @@ class io_board_py_t(object):
                 bytesize=serial.EIGHTBITS,
                 timeout=1)
         r = self.command("count")
-        print("")
         m = {}
         for line in r:
             parts = line.split(b':')
@@ -289,34 +303,34 @@ class io_board_py_t(object):
         raise AttributeError("Attribute %s not found" % item)
 
     def _read_line(self):
-        line = self.comm.readline().strip()
-        if _DEBUG:
-            print("<<", line)
+        line = self.comm.readline().rstrip()
+        debug_print(b">> : %s" % line)
         return line
 
-    def read_response(self):
+    def _read_response(self):
         line = self._read_line()
         start = time.time()
-        while line != io_board_py_t.__LOG_START_SPACER:
+        while line != type(self).__LOG_START_SPACER:
+            if (time.time() - start) > type(self).__READTIME:
+                raise ValueError("Comms read took too long.")
             line = self._read_line()
-            assert time.time() - start < io_board_py_t.__READTIME
 
         line = self._read_line()
         data_lines = []
 
-        while line != io_board_py_t.__LOG_END_SPACER:
+        while line != type(self).__LOG_END_SPACER:
+            if (time.time() - start) > type(self).__READTIME:
+                raise ValueError("Comms read took too long.")
             data_lines += [line]
             line = self._read_line()
-            assert time.time() - start < io_board_py_t.__READTIME
 
         return data_lines
 
     def command(self, cmd):
         for c in cmd:
             self.comm.write(c.encode())
-            time.sleep(io_board_py_t.__WRITEDELAY)
+            time.sleep(type(self).__WRITEDELAY)
         self.comm.write(b'\n')
         self.comm.flush()
-        if _DEBUG:
-            print(">>", cmd)
-        return self.read_response()
+        debug_print("<< " + cmd)
+        return self._read_response()
