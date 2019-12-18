@@ -109,6 +109,8 @@ class adc_t(io_board_prop_t):
         self._max_value = 0
         self._avg_value = 0
         self._age = 0
+        self.adc_scale  = 1
+        self.adc_offset = 0
 
     def update_values(self):
         parent = self.parent()
@@ -117,11 +119,14 @@ class adc_t(io_board_prop_t):
         parts = [part.strip() for part in r[0].split(b':') ]
         assert parts[0] == b"ADC"
         assert int(parts[1].split(b' ')[0]) == self.index
-        self._min_value = int(r[1].split(b':')[1].strip())
-        self._max_value = int(r[2].split(b':')[1].strip())
+        raw_min_value = int(r[1].split(b':')[1].strip())
+        raw_max_value = int(r[2].split(b':')[1].strip())
         parts = r[3].split(b':')[1].split(b'/')
-        self._avg_value = float(parts[0].strip()) / int(parts[1].strip())
+        raw_avg_value = float(parts[0].strip()) / int(parts[1].strip())
         self._age = time.time()
+        self._avg_value = raw_avg_value * self.adc_scale + self.adc_offset
+        self._min_value = raw_min_value * self.adc_scale + self.adc_offset
+        self._max_value = raw_max_value * self.adc_scale + self.adc_offset
 
     def _refresh(self):
         if not self._age or (time.time() - self._age) > 1:
@@ -200,19 +205,53 @@ class adcex_t(io_board_prop_t):
 class io_board_py_t(object):
     __LOG_START_SPACER = b"============{"
     __LOG_END_SPACER   = b"}============"
-    __PROP_MAP = {b"ppss" : pps_t,
-                  b"inputs" : input_t,
-                  b"outputs" : output_t,
-                  b"adcs" : adc_t,
-                  b"adcexs" : adcex_t}
+    __PROP_MAP = {"ppss" : pps_t,
+                  "inputs" : input_t,
+                  "outputs" : output_t,
+                  "adcs" : adc_t,
+                  "adcexs" : adcex_t}
     __READTIME = 2
     __WRITEDELAY = 0.001 # Stop flooding STM32 faster than it can deal with
+    NAME_MAP = { "F4_OUT"      : lambda board : board.adcs[1],
+                 "F3_OUT"      : lambda board : board.adcs[2],
+                 "F2_OUT"      : lambda board : board.adcs[3],
+                 "F1_OUT"      : lambda board : board.adcs[4],
+                 "TH2_OUT"     : lambda board : board.adcs[5],
+                 "AIN_BUF_CH3" : lambda board : board.adcs[6],
+                 "AIN_BUF_CH1" : lambda board : board.adcs[7],
+                 "I_MON"       : lambda board : board.adcs[8],
+                 "TH4_OUT"     : lambda board : board.adcs[9],
+                 "TH3_OUT"     : lambda board : board.adcs[10],
+                 "TH1_OUT"     : lambda board : board.adcs[11],
+                 "AIN_BUF_CH4" : lambda board : board.adcs[12],
+                 "AIN_BUF_CH2" : lambda board : board.adcs[13],
+                 "GPIO1"       : lambda board : board.inputs[1],
+                 "GPIO2"       : lambda board : board.inputs[2],
+                 "GPIO3"       : lambda board : board.inputs[3],
+                 "GPIO4"       : lambda board : board.inputs[4],
+                 "GPIO5"       : lambda board : board.inputs[5],
+                 "SB1"         : lambda board : board.inputs[6],
+                 "SB2"         : lambda board : board.inputs[7],
+                 "HS_OUT1"     : lambda board : board.outputs[1],
+                 "HS_OUT2"     : lambda board : board.pwms[1],
+                 "HS_OUT3"     : lambda board : board.outputs[2],
+                 "HS_OUT4"     : lambda board : board.outputs[3],
+                 "RL1"         : lambda board : board.outputs[4],
+                 "RTD1"        : lambda board : board.adcexs[1],
+                 "RTD2"        : lambda board : board.adcexs[2],
+                 "RTD3"        : lambda board : board.adcexs[3],
+                 "RTD4"        : lambda board : board.adcexs[4],
+                 }
+
+    # Scale then offset
+    _ADC_CORRECTION_MAP = {"F1_OUT" : (0.045995342549755, -33.4574807550702)}
 
     def __init__(self, dev):
         self.ppss = []
         self.inputs = []
         self.outputs = []
         self.adcs = []
+        self.adcexs = []
         self.comm = serial.Serial(
                 port=dev,
                 baudrate=115200,
@@ -226,11 +265,28 @@ class io_board_py_t(object):
         for line in r:
             parts = line.split(b':')
             name  = parts[0].lower().strip()
+            name = name.decode()
             count = int(parts[1])
             for n in range(0, count):
-                child = io_board_py_t.__PROP_MAP[name](n + 1, self)
-                children = getattr(self, name.decode())
+                child_class = io_board_py_t.__PROP_MAP[name]
+                child = child_class(n + 1, self)
+                children = getattr(self, name)
                 children += [child]
+
+        cal_map = type(self)._ADC_CORRECTION_MAP
+
+        for adc_name, adc_adj in cal_map.items():
+            if adc_name in type(self).NAME_MAP:
+                adc = getattr(self, adc_name)
+                adc.adc_scale  = adc_adj[0]
+                adc.adc_offset = adc_adj[1]
+
+
+
+    def __getattr__(self, item):
+        if item in type(self).NAME_MAP:
+            return type(self).NAME_MAP[item](self)
+        raise AttributeError("Attribute %s not found" % item)
 
     def _read_line(self):
         line = self.comm.readline().strip()
