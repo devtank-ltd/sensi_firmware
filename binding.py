@@ -173,7 +173,7 @@ class adcex_t(io_board_prop_t):
     def update_values(self):
         parent = self.parent()
         r = parent.command("adcex %u" % self.index)
-        assert len(r) == 3
+        assert len(r) == 2
         parts = [part.strip() for part in r[0].split(b':') ]
         assert len(parts) == 2
         assert parts[0] == b"ADCEX"
@@ -221,6 +221,7 @@ class io_board_py_t(object):
     __LOG_START_SPACER = b"============{"
     __LOG_END_SPACER   = b"}============"
     __PROP_MAP = {"ppss" : pps_t,
+                  "pwms" : pwm_t,
                   "inputs" : input_t,
                   "outputs" : output_t,
                   "adcs" : adc_t,
@@ -244,7 +245,8 @@ class io_board_py_t(object):
                  "GPIO2_EXT"   : lambda board : board.inputs[2],
                  "GPIO3_EXT"   : lambda board : board.inputs[3],
                  "GPIO4_EXT"   : lambda board : board.inputs[4],
-                 "GPIO5_EXT"   : lambda board : board.inputs[5],
+                 "GPIO5_EXT"   : lambda board : board.inputs[6],
+                 "GPIO6_EXT"   : lambda board : board.inputs[7],
                  "SB1"         : lambda board : board.inputs[6],
                  "SB2"         : lambda board : board.inputs[7],
                  "HS_OUT1"     : lambda board : board.outputs[1],
@@ -262,11 +264,12 @@ class io_board_py_t(object):
     _ADC_CORRECTION_MAP = {"F1_OUT" : (0.045995342549755, -33.4574807550702)}
 
     def __init__(self, dev):
-        self.ppss = []
-        self.inputs = []
-        self.outputs = []
-        self.adcs = []
-        self.adcexs = []
+        self.ppss = {}
+        self.pwms = {}
+        self.inputs = {}
+        self.outputs = {}
+        self.adcs = {}
+        self.adcexs = {}
         self.comm = serial.Serial(
                 port=dev,
                 baudrate=115200,
@@ -274,6 +277,12 @@ class io_board_py_t(object):
                 stopbits=serial.STOPBITS_ONE,
                 bytesize=serial.EIGHTBITS,
                 timeout=1)
+
+        line = self._read_line()
+        while len(line):
+            line = self._read_line()
+        debug_print("Drained")
+
         r = self.command("count")
         m = {}
         for line in r:
@@ -285,7 +294,7 @@ class io_board_py_t(object):
                 child_class = io_board_py_t.__PROP_MAP[name]
                 child = child_class(n + 1, self)
                 children = getattr(self, name)
-                children += [child]
+                children[n + 1] = child
 
         cal_map = type(self)._ADC_CORRECTION_MAP
 
@@ -303,7 +312,7 @@ class io_board_py_t(object):
         raise AttributeError("Attribute %s not found" % item)
 
     def _read_line(self):
-        line = self.comm.readline().rstrip()
+        line = self.comm.readline().strip()
         debug_print(b">> : %s" % line)
         return line
 

@@ -109,6 +109,7 @@ void count_cb()
     log_out("Outputs : %u", outputs_get_count());
     log_out("ADCs    : %u", adcs_get_count());
     log_out("ADCEXs  : %u", adcs_ex_get_count());
+    log_out("PWMs    : 1");
 }
 
 
