@@ -289,6 +289,8 @@ class io_board_py_t(object):
             parts = line.split(b':')
             name  = parts[0].lower().strip()
             name = name.decode()
+            if name not in  io_board_py_t.__PROP_MAP:
+                raise Exception("Unknown property : " + name)
             count = int(parts[1])
             for n in range(0, count):
                 child_class = io_board_py_t.__PROP_MAP[name]
