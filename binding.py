@@ -166,7 +166,7 @@ class adc_t(io_board_prop_t):
 class adcex_t(io_board_prop_t):
     def __init__(self, index, parent):
         io_board_prop_t.__init__(self, index, parent)
-        self._age = time.time()
+        self._age = 0
         self._raw_value = 0
         self._real_value = 0
 
@@ -201,6 +201,7 @@ class adcex_t(io_board_prop_t):
             rpoly *= r0  # ^5
             temp += 1.5243e-10 * rpoly
         self._real_value = temp
+        self._age = time.time()
 
     def _refresh(self):
         if not self._age or (time.time() - self._age) > 1:
