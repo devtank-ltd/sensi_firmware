@@ -277,13 +277,13 @@ uint16_t max31865_read_temperature(uint8_t chip)
     returnValue = max31865_read_register(MAX31865_RTD_MSB);
     returnValue <<= 8;
     lsb = max31865_read_register(MAX31865_RTD_LSB);
-    if (lsb | 1)
+    returnValue |= (lsb >> 1);
+    if (lsb & 1)
     {
         log_debug(DEBUG_ADC_EX, "Fault reported in LSB");
         max31865_fault_status_report(
             max31865_read_register(MAX31865_FAULT_STATUS));
     }
-    else returnValue |= (lsb >> 1);
 
     max31865_disable_device(chip);
 
