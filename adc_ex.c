@@ -30,13 +30,18 @@ unsigned adcs_ex_get_count()
 }
 
 
+uint16_t adc_ex_get(unsigned adc)
+{
+    if (adc >= RTD_COUNT)
+        return 0;
+    max31865_wait_for_data_ready(adc);
+    return max31865_read_temperature(adc);
+}
+
+
 void adcs_ex_adc_log(unsigned adc)
 {
-    uint16_t temp;
-
-    max31865_wait_for_data_ready(adc);
-    temp = max31865_read_temperature(adc);
-    _output_adcex(adc, temp);
+    _output_adcex(adc, adc_ex_get(adc));
 }
 
 

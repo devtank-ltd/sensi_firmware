@@ -6,6 +6,8 @@ extern unsigned uart_ring_out(unsigned uart, const char* s, unsigned len);
 
 extern unsigned cmd_ring_out(const char* s, unsigned len);
 
+extern unsigned uart_ring_in_length(unsigned uart);
+
 extern void uart_rings_in_drain();
 extern void uart_rings_out_drain();
 

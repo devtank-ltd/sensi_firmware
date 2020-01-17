@@ -8,6 +8,7 @@
 #include "log.h"
 #include "cmd.h"
 #include "uarts.h"
+#include "uart_rings.h"
 #include "usb_uarts.h"
 #include "adcs.h"
 #include "adc_ex.h"
@@ -31,6 +32,7 @@ typedef struct
 
 static void adc_cb();
 static void adcex_cb();
+static void adcs_ex_loop();
 static void input_cb();
 static void output_cb();
 static void count_cb();
@@ -44,6 +46,7 @@ static cmd_t cmds[] = {
     { "adcs",     "Print all ADCs.",         adcs_log},
     { "adcex",    "Print ADC EX.",           adcex_cb},
     { "adcexs",   "Print all ADC EX.",       adcs_ex_log},
+    { "loop_ex",  "Loop printing ADC EX.",   adcs_ex_loop},
     { "inputs",   "Print all inputs.",       inputs_log},
     { "outputs",  "Print all outputs.",      outputs_log},
     { "input",    "Print input.",            input_cb},
@@ -74,6 +77,32 @@ void adc_cb()
 void adcex_cb()
 {
     adcs_ex_adc_log(_read_index(NULL));
+}
+
+void adcs_ex_loop()
+{
+    unsigned adc = _read_index(NULL);
+    unsigned input_count = uart_ring_in_length(0);
+    unsigned cur_tick = uptime;
+    int prev_value = 0;
+    while(true)
+    {
+        if (cur_tick != uptime)
+        {
+            log_out(LOG_START_SPACER);
+            unsigned temp = adc_ex_get(adc);
+            log_out("ADCEX: %u", adc + 1);
+            log_out("RAW: %u (delta:%i)", temp, ((int)temp)-prev_value);
+            log_out(LOG_END_SPACER);
+            prev_value = temp;
+            cur_tick = uptime;
+        }
+
+        if (input_count != uart_ring_in_length(0))
+            break;
+        uart_rings_in_drain();
+        uart_rings_out_drain();
+    }
 }
 
 

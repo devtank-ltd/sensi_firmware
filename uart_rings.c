@@ -125,6 +125,16 @@ static void uart_ring_in_drain(unsigned uart)
 }
 
 
+unsigned uart_ring_in_length(unsigned uart)
+{
+    if (uart >= UART_CHANNELS_COUNT)
+        return 0;
+
+    ring_buf_t * ring = &ring_in_bufs[uart];
+    return ring_buf_get_pending(ring);
+}
+
+
 static unsigned _uart_out(char * c, unsigned len __attribute__((unused)), void * puart)
 {
     unsigned uart = *(unsigned*)puart;

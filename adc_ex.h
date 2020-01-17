@@ -5,6 +5,8 @@ extern void     adcs_ex_init();
 
 extern unsigned adcs_ex_get_count();
 
+extern uint16_t adc_ex_get(unsigned adc);
+
 extern void     adcs_ex_adc_log(unsigned adc);
 extern void     adcs_ex_log();
 
