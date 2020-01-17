@@ -233,13 +233,17 @@ void max31865_start_reading(uint8_t chip)
 
 uint16_t max31865_read_temperature(uint8_t chip)
 {
-    volatile uint16_t returnValue;
+    uint16_t returnValue;
+    uint8_t lsb;
 
     max31865_enable_device(chip);
 
     returnValue = max31865_read_register(MAX31865_RTD_MSB);
     returnValue <<= 8;
-    returnValue |= max31865_read_register(MAX31865_RTD_LSB);
+    lsb = max31865_read_register(MAX31865_RTD_LSB);
+    if (lsb | 1)
+        log_debug(DEBUG_ADC_EX, "Fault reported in LSB");
+    returnValue |= (lsb >> 1);
 
     max31865_disable_device(chip);
 
