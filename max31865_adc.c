@@ -53,6 +53,13 @@ const uint8_t MAX31865_DETECTION_CYCLE      = 0x06;  /**< Fault-detection cycle 
 const uint8_t MAX31865_FAULT_STATUS_CLEAR   = 0x02;  /**< Clear fault-status */
 const uint8_t MAX31865_50HZ                 = 0x01;  /**< Select 50Hz */
 
+/* Fault Status bits */
+const uint8_t MAX31865_FAULT_HIGH_THRES      = 0x80;  /**< RTD High Threshold */
+const uint8_t MAX31865_FAULT_LOW_THRES       = 0x40;  /**< RTD Low Threshold */
+const uint8_t MAX31865_FAULT_REFIN           = 0x20;  /**< REFIN- > 0.85 x V BIAS */
+const uint8_t MAX31865_FAULT_REFIN2          = 0x10;  /**< REFIN- < 0.85 x V BIAS (FORCE- open) */
+const uint8_t MAX31865_FAULT_RTDIN           = 0x08;  /**< RTDIN- < 0.85 x V BIAS (FORCE- open) */
+const uint8_t MAX31865_FAULT_UNDER_OVERVOLTS = 0x04;  /**< Overvoltage/undervoltage fault */
 
 const port_n_pins_t rtd_cs_port_n_pins[]  = RTD_CS_PORT_N_PINS;
 const port_n_pins_t rtd_int_port_n_pins[] = RTD_INT_PORT_N_PINS;
@@ -188,6 +195,31 @@ uint8_t max31865_read_register(uint8_t addr)
     return xfer.data.data_hi;
 }
 
+
+static void max31865_fault_status_report(uint8_t fault)
+{
+    log_debug(DEBUG_ADC_EX, "Fault Status Register : 0x%"PRIx8, fault);
+
+    if (fault & MAX31865_FAULT_HIGH_THRES)
+        log_debug(DEBUG_ADC_EX, "RTD High Threshold");
+
+    if (fault & MAX31865_FAULT_LOW_THRES)
+        log_debug(DEBUG_ADC_EX, "RTD Low Threshold");
+
+    if (fault & MAX31865_FAULT_REFIN)
+        log_debug(DEBUG_ADC_EX, "REFIN- > 0.85 x V BIAS");
+
+    if (fault & MAX31865_FAULT_REFIN2)
+        log_debug(DEBUG_ADC_EX, "REFIN- < 0.85 x V BIAS (FORCE- open)");
+
+    if (fault & MAX31865_FAULT_RTDIN)
+        log_debug(DEBUG_ADC_EX, "RTDIN- < 0.85 x V BIAS (FORCE- open)");
+
+    if (fault & MAX31865_FAULT_UNDER_OVERVOLTS)
+        log_debug(DEBUG_ADC_EX, "Overvoltage/undervoltage fault");
+}
+
+
 void max31865_wait_for_data_ready(uint8_t chip)
 {
     port_n_pins_t port_n_pin = rtd_int_port_n_pins[chip];
@@ -203,11 +235,11 @@ void max31865_wait_for_data_ready(uint8_t chip)
         if (delta > 4)
         {
             max31865_enable_device(chip);
-            uint8_t fault_reg = max31865_read_register(MAX31865_RTD_MSB);
+            uint8_t fault_reg = max31865_read_register(MAX31865_FAULT_STATUS);
             max31865_disable_device(chip);
 
             log_debug(DEBUG_ADC_EX, "Wait timed out. start:%u now:%u", start_time, now);
-            log_debug(DEBUG_ADC_EX, "Fault Register : 0x%"PRIx8, fault_reg);
+            max31865_fault_status_report(fault_reg);
             uart_rings_out_drain();
             break;
         }
@@ -242,8 +274,12 @@ uint16_t max31865_read_temperature(uint8_t chip)
     returnValue <<= 8;
     lsb = max31865_read_register(MAX31865_RTD_LSB);
     if (lsb | 1)
+    {
         log_debug(DEBUG_ADC_EX, "Fault reported in LSB");
-    returnValue |= (lsb >> 1);
+        max31865_fault_status_report(
+            max31865_read_register(MAX31865_FAULT_STATUS));
+    }
+    else returnValue |= (lsb >> 1);
 
     max31865_disable_device(chip);
 
