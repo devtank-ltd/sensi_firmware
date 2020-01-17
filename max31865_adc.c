@@ -49,9 +49,13 @@ const uint8_t MAX31865_VBIAS_ON             = 0x80;  /**< VBIAS on */
 const uint8_t MAX31865_CONVERSION_AUTO      = 0x40;  /**< Conversion mode auto*/
 const uint8_t MAX31865_ONE_SHOT             = 0x20;  /**< Perform single-shot reading */
 const uint8_t MAX31865_THREE_WIRE           = 0x10;  /**< Select 3-wire RTD */
-const uint8_t MAX31865_DETECTION_CYCLE      = 0x06;  /**< Fault-detection cycle */
+const uint8_t MAX31865_DETECTION_CYCLE_MAN2 = 0x0C;  /**< Fault-detection cycle - manual finish*/
+const uint8_t MAX31865_DETECTION_CYCLE_MAN1 = 0x08;  /**< Fault-detection cycle - manual run*/
+const uint8_t MAX31865_DETECTION_CYCLE_AUTO = 0x04;  /**< Fault-detection cycle - auto */
 const uint8_t MAX31865_FAULT_STATUS_CLEAR   = 0x02;  /**< Clear fault-status */
 const uint8_t MAX31865_50HZ                 = 0x01;  /**< Select 50Hz */
+
+
 
 /* Fault Status bits */
 const uint8_t MAX31865_FAULT_HIGH_THRES      = 0x80;  /**< RTD High Threshold */
