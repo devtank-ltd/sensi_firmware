@@ -164,7 +164,7 @@ void max31865_config(uint8_t chip)
                      MAX31865_THREE_WIRE | \
                      MAX31865_FAULT_STATUS_CLEAR;
 
-    log_out("max31865 write config chip %u", chip);
+    log_out("max31865 write config (0x%02"PRIx8") chip %u", config, chip);
 
     max31865_enable_device(chip);
     max31865_write_register(MAX31865_WR_CONFIG, config);
