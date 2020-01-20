@@ -275,7 +275,7 @@ uint16_t max31865_read_temperature(uint8_t chip)
     max31865_enable_device(chip);
 
     returnValue = max31865_read_register(MAX31865_RTD_MSB);
-    returnValue <<= 8;
+    returnValue <<= 7;
     lsb = max31865_read_register(MAX31865_RTD_LSB);
     returnValue |= (lsb >> 1);
     if (lsb & 1)
