@@ -107,18 +107,32 @@ static void max31865_disable_device(uint8_t chip)
     gpio_set(port_n_pin.port, port_n_pin.pins);
 }
 
-static uint8_t max31865_spi_send(uint8_t addr, uint8_t data)
+
+static void max31865_spi_transfer(uint8_t chip, max31865_xfer_t * xfer)
 {
-    max31865_xfer_t xfer;
-    xfer.reg.addr  = addr;
-    xfer.reg.value = data;
-
-    log_debug(DEBUG_ADC_EX, "XFER WR:%04X", xfer.buffer);
-    xfer.buffer = spi_xfer(MAX31865_SPI, xfer.buffer);
-    log_debug(DEBUG_ADC_EX, "XFER RD:%04X", xfer.buffer);
-
-    return spi_xfer(MAX31865_SPI, data);
+    max31865_enable_device(chip);
+    log_debug(DEBUG_ADC_EX, "XFER WR:%04X", xfer->buffer);
+    xfer->buffer = spi_xfer(MAX31865_SPI, xfer->buffer);
+    log_debug(DEBUG_ADC_EX, "XFER RD:%04X", xfer->buffer);
+    max31865_disable_device(chip);
 }
+
+
+void max31865_write_register(uint8_t chip, uint8_t addr, uint8_t value)
+{
+    log_debug(DEBUG_ADC_EX, "max31865_write_register addr:%02"PRIx8" value:%02"PRIx8, addr, value);
+    max31865_spi_transfer(chip,
+        &(max31865_xfer_t){.reg = {.addr = addr, .value = value}});
+}
+
+uint8_t max31865_read_register(uint8_t chip, uint8_t addr)
+{
+    max31865_xfer_t xfer = {.reg = {.addr = addr, .value = 0xFF}};
+    max31865_spi_transfer(chip, &xfer);
+    log_debug(DEBUG_ADC_EX, "max31865_read_register addr:%02"PRIx8" value:%02"PRIx8, addr, xfer.data.data_hi);
+    return xfer.data.data_hi;
+}
+
 
 void max31865_init(void)
 {
@@ -175,35 +189,6 @@ void max31865_config(uint8_t chip)
     max31865_write_register(chip, MAX31865_WR_CONFIG, config);
     max31865_read_register(chip, MAX31865_CONFIG);
 }
-
-void max31865_write_register(uint8_t chip, uint8_t addr, uint8_t value)
-{
-    max31865_xfer_t reg;
-    reg.reg.addr  = addr;
-    reg.reg.value = value;
-
-    max31865_enable_device(chip);
-    log_debug(DEBUG_ADC_EX, "max31865_write_register addr:%u value:%u", addr, value);
-    max31865_spi_send(addr, value);
-    log_debug(DEBUG_ADC_EX, "Writen:%04X", reg.buffer);
-    max31865_disable_device(chip);
-}
-
-uint8_t max31865_read_register(uint8_t chip, uint8_t addr)
-{
-    max31865_xfer_t xfer;
-    xfer.reg.addr  = addr;
-    xfer.reg.value = 0xFF;
-
-    max31865_enable_device(chip);
-    log_debug(DEBUG_ADC_EX, "max31865_read_register addr:%u", addr);
-    xfer.buffer = spi_xfer(MAX31865_SPI, xfer.buffer);
-    log_debug(DEBUG_ADC_EX, "Read:%04X : %u", xfer.buffer, xfer.data.data_hi);
-    max31865_disable_device(chip);
-
-    return xfer.data.data_hi;
-}
-
 
 static void max31865_fault_status_report(uint8_t fault)
 {
