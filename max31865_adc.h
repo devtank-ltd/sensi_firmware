@@ -73,7 +73,7 @@ void max31865_config(uint8_t chip);
  * @note
  * This function automatically adds write bit as needed by this device.
  */
-void max31865_write_register(uint8_t addr, uint8_t value);
+void max31865_write_register(uint8_t chip, uint8_t addr, uint8_t value);
 
 /**
  * @brief Read from Register
@@ -84,7 +84,7 @@ void max31865_write_register(uint8_t addr, uint8_t value);
  *
  * RTD SPI Read function, that will read data from the chosen register.
  */
-uint8_t max31865_read_register(uint8_t addr);
+uint8_t max31865_read_register(uint8_t chip, uint8_t addr);
 
 /**
  * @brief Start temperature reading

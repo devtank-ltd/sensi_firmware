@@ -172,31 +172,34 @@ void max31865_config(uint8_t chip)
 
     log_out("max31865 write config (0x%02"PRIx8") chip %u", config, chip);
 
-    max31865_enable_device(chip);
-    max31865_write_register(MAX31865_WR_CONFIG, config);
-    max31865_disable_device(chip);
+    max31865_write_register(chip, MAX31865_WR_CONFIG, config);
+    max31865_read_register(chip, MAX31865_CONFIG);
 }
 
-void max31865_write_register(uint8_t addr, uint8_t value)
+void max31865_write_register(uint8_t chip, uint8_t addr, uint8_t value)
 {
     max31865_xfer_t reg;
     reg.reg.addr  = addr;
     reg.reg.value = value;
 
+    max31865_enable_device(chip);
     log_debug(DEBUG_ADC_EX, "max31865_write_register addr:%u value:%u", addr, value);
     max31865_spi_send(addr, value);
     log_debug(DEBUG_ADC_EX, "Writen:%04X", reg.buffer);
+    max31865_disable_device(chip);
 }
 
-uint8_t max31865_read_register(uint8_t addr)
+uint8_t max31865_read_register(uint8_t chip, uint8_t addr)
 {
     max31865_xfer_t xfer;
     xfer.reg.addr  = addr;
     xfer.reg.value = 0xFF;
 
+    max31865_enable_device(chip);
     log_debug(DEBUG_ADC_EX, "max31865_read_register addr:%u", addr);
     xfer.buffer = spi_xfer(MAX31865_SPI, xfer.buffer);
     log_debug(DEBUG_ADC_EX, "Read:%04X : %u", xfer.buffer, xfer.data.data_hi);
+    max31865_disable_device(chip);
 
     return xfer.data.data_hi;
 }
@@ -240,9 +243,7 @@ void max31865_wait_for_data_ready(uint8_t chip)
         unsigned delta = (now >= start_time)?(now-start_time):(0xFFFFFFFF - start_time + now);
         if (delta > 4)
         {
-            max31865_enable_device(chip);
-            uint8_t fault_reg = max31865_read_register(MAX31865_FAULT_STATUS);
-            max31865_disable_device(chip);
+            uint8_t fault_reg = max31865_read_register(chip, MAX31865_FAULT_STATUS);
 
             log_debug(DEBUG_ADC_EX, "Wait timed out. start:%u now:%u", start_time, now);
             max31865_fault_status_report(fault_reg);
@@ -258,13 +259,11 @@ void max31865_start_reading(uint8_t chip)
     uint8_t config;
 
     // Do a one-shot conversion
-    max31865_enable_device(chip);
-
-    config = max31865_read_register(MAX31865_CONFIG);
+    config = max31865_read_register(chip, MAX31865_CONFIG);
 
     config |= MAX31865_ONE_SHOT;
 
-    max31865_write_register(MAX31865_WR_CONFIG, config);
+    max31865_write_register(chip, MAX31865_WR_CONFIG, config);
 
     max31865_disable_device(chip);
 }
@@ -274,20 +273,16 @@ uint16_t max31865_read_temperature(uint8_t chip)
     uint16_t returnValue;
     uint8_t lsb;
 
-    max31865_enable_device(chip);
-
-    returnValue = max31865_read_register(MAX31865_RTD_MSB);
+    returnValue = max31865_read_register(chip, MAX31865_RTD_MSB);
     returnValue <<= 7;
-    lsb = max31865_read_register(MAX31865_RTD_LSB);
+    lsb = max31865_read_register(chip, MAX31865_RTD_LSB);
     returnValue |= (lsb >> 1);
     if (lsb & 1)
     {
         log_debug(DEBUG_ADC_EX, "Fault reported in LSB");
         max31865_fault_status_report(
-            max31865_read_register(MAX31865_FAULT_STATUS));
+            max31865_read_register(chip, MAX31865_FAULT_STATUS));
     }
-
-    max31865_disable_device(chip);
 
     return returnValue;
 }
