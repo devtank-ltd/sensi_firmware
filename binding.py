@@ -179,7 +179,7 @@ class adcex_t(io_board_prop_t):
         assert parts[0] == b"ADCEX"
         assert int(parts[1].split(b' ')[0]) == self.index
         self._raw_value = int(r[1].split(b':')[1])
-        r0 = ((self._raw_value * 470) / 0x8000) / 2
+        r0 = ((self._raw_value * 470) / 0x4000) / 2
         _RTD_A = 3.9083e-3
         _RTD_B = -5.775e-7
         Z1 = -_RTD_A
