@@ -154,6 +154,8 @@ void max31865_init(void)
 
     spi_set_data_size(MAX31865_SPI, SPI_CR2_DS_8BIT);
 
+    spi_enable(MAX31865_SPI);
+
     log_out("max31865_init: complete");
 }
 

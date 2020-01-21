@@ -18,7 +18,6 @@ static void _output_adcex(unsigned adc, uint16_t temp)
 void adcs_ex_init()
 {
     max31865_init();
-    spi_enable(MAX31865_SPI);
     for(unsigned n = 0; n < RTD_COUNT; n++)
         max31865_config(n);
 }
