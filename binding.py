@@ -262,7 +262,7 @@ class io_board_py_t(object):
                  }
 
     # Scale then offset
-    _ADC_CORRECTION_MAP = {"F1_OUT" : (0.045995342549755, -33.4574807550702)}
+    _ADC_CORRECTION_MAP = {"F1_OUT" : (0.079517571347618, -58.4115245515909)}
 
     def __init__(self, dev):
         self.ppss = {}
