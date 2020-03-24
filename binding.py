@@ -218,6 +218,64 @@ class adcex_t(io_board_prop_t):
         return self._real_value
 
 
+def read_eeprom_from(f):
+    import string
+
+    body = None
+
+    header = f.read(256)
+    last_line_end = header.rfind(b"\n")
+    header = header[:last_line_end]
+    try:
+        header_data = yaml.load(header)
+    except yaml.parser.ParserError as e:
+        print("Failed to parse EEPROM header:", e, file=sys.stderr)
+        return None
+
+    if header_data.get("VERSION", None) != 1:
+        print("Unknown EEPROM header format.", header_data.get("VERSION", "MISSING"), file=sys.stderr)
+        return None
+
+    for key in ["VERSION",
+                "CARD",
+                "PRODUCT",
+                "REVISION",
+                "SERIAL",
+                "CAL_DATE",
+                "HEADER_MD5"]:
+        if key not in header_data:
+            print("EEPROM header missing key :", key, file=sys.stderr)
+            return None
+
+    eeprom_md5 = header_data.pop("HEADER_MD5")
+    header_md5 = dict_md5(header_data)
+
+    if eeprom_md5 != header_md5:
+        print("EEPROM MD5 Header check failed.", file=sys.stderr)
+        return None
+
+    body_size = header_data.get("BODY_SIZE", None)
+    body_data = None
+
+    if body_size:
+        body = f.read(body_size)
+
+        try:
+            body_data = yaml.load(body)
+        except yaml.parser.ParserError as e:
+            print("Failed to parse EEPROM body:", e, file=sys.stderr)
+            return None
+
+        body_md5 = dict_md5(body_data)
+        eeprom_md5 = header_data.pop("BODY_MD5", None)
+
+        if eeprom_md5 != body_md5:
+            print("EEPROM MD5 Body check failed.", file=sys.stderr)
+            return None
+
+    return body_data
+
+
 class io_board_py_t(object):
     __LOG_START_SPACER = b"============{"
     __LOG_END_SPACER   = b"}============"
@@ -300,6 +358,31 @@ class io_board_py_t(object):
                 children[n + 1] = child
 
         cal_map = type(self)._ADC_CORRECTION_MAP
+
+        dev_mode = os.stat(dev).st_mode
+        if stat.S_ISLNK(dev_mode):
+            dev_name = os.path.basename(os.readlink(dev))
+        else:
+            dev_name = os.path.basename(dev)
+
+        sys_path = "/sys/class/tty/%s/device" % dev_name
+        if os.path.exists(sys_path):
+            # USB sysfs ends with port.port:config.interface
+            sys_path = os.readlink(sys_path)
+            conf_inf = sys_path.rfind(":")
+            own_port = sys_path.rfind(".", 0, conf_inf)
+            parent_port = sys_path.rfind(".", 0, own_port)
+            backplane_port = int(sys_path[parent_port+1:own_port])
+            # Card EEPROMs are layed out spi0.2 and on.
+            eeprom_path = "/sys/bus/spi/devices/spi0.%u/eeprom" % (2 + (backplane_port - 1))
+
+            try:
+                with open(eeprom_path, "rb") as f:
+                    eeprom_cal_map = read_eeprom_from(f)
+                    if eeprom_cal_map:
+                        cal_map.update(eeprom_cal_map)
+            except IOError:
+                continue
 
         for adc_name, adc_adj in cal_map.items():
             if adc_name in type(self).NAME_MAP:
