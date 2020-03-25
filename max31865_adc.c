@@ -182,7 +182,8 @@ void max31865_config(uint8_t chip)
     uint8_t config = MAX31865_VBIAS_ON | \
                      MAX31865_CONVERSION_AUTO | \
                      MAX31865_THREE_WIRE | \
-                     MAX31865_FAULT_STATUS_CLEAR;
+                     MAX31865_FAULT_STATUS_CLEAR | \
+                     MAX31865_50HZ;
 
     log_out("max31865 write config (0x%02"PRIx8") chip %u", config, chip);
 
