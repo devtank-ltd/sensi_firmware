@@ -2,6 +2,7 @@ from __future__ import print_function
 import os
 import sys
 import math
+import yaml
 import time
 import serial
 import weakref
