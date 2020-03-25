@@ -1,6 +1,5 @@
 from __future__ import print_function
 import os
-import stat
 import sys
 import math
 import time
@@ -360,10 +359,9 @@ class io_board_py_t(object):
 
         cal_map = type(self)._ADC_CORRECTION_MAP
 
-        dev_mode = os.stat(dev).st_mode
-        if stat.S_ISLNK(dev_mode):
+        try:
             dev_name = os.path.basename(os.readlink(dev))
-        else:
+        except OSError:
             dev_name = os.path.basename(dev)
 
         sys_path = "/sys/class/tty/%s/device" % dev_name
