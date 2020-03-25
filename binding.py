@@ -382,7 +382,7 @@ class io_board_py_t(object):
                     if eeprom_cal_map:
                         cal_map.update(eeprom_cal_map)
             except IOError:
-                continue
+                pass
 
         for adc_name, adc_adj in cal_map.items():
             if adc_name in type(self).NAME_MAP:
