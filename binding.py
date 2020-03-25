@@ -219,6 +219,15 @@ class adcex_t(io_board_prop_t):
         return self._real_value
 
 
+def dict_md5(d):
+    import hashlib
+    hash_md5 = hashlib.md5()
+    text = yaml.dump(d, default_flow_style=False)
+    hash_md5.update(text)
+    md5 = hash_md5.hexdigest()
+    return md5
+
+
 def read_eeprom_from(f):
     import string
 
