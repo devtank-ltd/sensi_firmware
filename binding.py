@@ -223,7 +223,7 @@ def dict_md5(d):
     import hashlib
     hash_md5 = hashlib.md5()
     text = yaml.dump(d, default_flow_style=False)
-    hash_md5.update(text)
+    hash_md5.update(text.encode())
     md5 = hash_md5.hexdigest()
     return md5
 
