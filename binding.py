@@ -395,10 +395,15 @@ class io_board_py_t(object):
 
         for adc_name, adc_adj in cal_map.items():
             if adc_name in type(self).NAME_MAP:
-                adc = getattr(self, adc_name)
-                adc.adc_scale  = adc_adj[0]
-                adc.adc_offset = adc_adj[1]
-
+                if adc_adj[0] in type(self).__PROP_MAP:
+                    renamedname = adc_name
+                    typename = adc_adj[0]
+                    index    = int(adc_adj[1])
+                    type(self).NAME_MAP[renamedname] = eval("lambda board : board.%s[%u]" % (typename, index))
+                else:
+                    adc = getattr(self, adc_name)
+                    adc.adc_scale  = adc_adj[0]
+                    adc.adc_offset = adc_adj[1]
 
 
     def __getattr__(self, item):
