@@ -1,5 +1,10 @@
 #include <inttypes.h>
 
+/* On some versions of gcc this header isn't defining it. Quick fix. */
+#ifndef PRIu64
+#define PRIu64 "llu"
+#endif
+
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/stm32/adc.h>
 #include <libopencm3/stm32/rcc.h>
