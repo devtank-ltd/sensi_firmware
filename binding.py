@@ -52,21 +52,19 @@ class pwm_t(io_board_prop_t):
         self._freq = None
         self._duty = None
 
+    def _parse_response(self, r):
+        self._freq = int(r[0].split(b':')[1].strip())
+        self._duty = float(r[1].split(b':')[1].strip())
+
     def refresh(self):
         parent = self.parent()
         r = parent.command("pwm")
-        freq = int(r[0].split(b':')[1].strip())
-        duty = int(r[1].split(b':')[1].strip())
-        self._freq = freq
-        self._duty = duty
+        self._parse_response(r)
 
     def _update(self, freq, duty):
         parent = self.parent()
-        r = parent.command("pwm %u %u" % (freq, duty))
-        freq = int(r[0].split(b':')[1].strip())
-        duty = int(r[1].split(b':')[1].strip())
-        self._freq = freq
-        self._duty = duty
+        r = parent.command("pwm %u %0.2f" % (freq, duty))
+        self._parse_response(r)
 
     @property
     def values(self):

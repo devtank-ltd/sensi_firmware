@@ -8,7 +8,7 @@
 #include "log.h"
 #include "pwm.h"
 
-static unsigned pwm_freq = 1000;
+static unsigned pwm_freq = 100;
 static unsigned pwm_duty = 0;
 
 
@@ -56,7 +56,7 @@ void pwm_set(unsigned freq, unsigned duty)
 {
     timer_set_period(PWM_TIMER, 48000000/48/freq);
 
-    timer_set_oc_value(PWM_TIMER, PWM_TIMER_CH, 48000000/48/freq * duty / 100);
+    timer_set_oc_value(PWM_TIMER, PWM_TIMER_CH, 48000000/48/freq * duty / 10000);
 
     timer_set_counter(PWM_TIMER, 0);
 

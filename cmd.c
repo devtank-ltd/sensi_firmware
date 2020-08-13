@@ -162,14 +162,22 @@ void pwm_cb()
 
     if (pos && *pos)
     {
-        duty = strtoul(pos, NULL, 10);
-
+        duty = strtoul(pos, &pos, 10);
+        duty *= 100;
+        if (*pos == '.')
+        {
+            pos++;
+            if (*pos)
+                duty += ((*pos++)-'0') * 10;
+            if (*pos)
+                duty += ((*pos++)-'0') * 1;
+        }
         pwm_set(freq, duty);
     }
 
     pwm_get(&freq, &duty);
     log_out("PWM Freq : %u", freq);
-    log_out("PWM Duty : %u", duty);
+    log_out("PWM Duty : %u.%02u", duty/100, duty%100);
 }
 
 
