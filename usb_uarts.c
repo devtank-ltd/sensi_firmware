@@ -314,7 +314,7 @@ void usb_isr()
 }
 
 
-unsigned usb_uart_send(unsigned uart, void * data, unsigned len)
+unsigned usb_uart_send(unsigned uart, void * data, unsigned len, bool flush)
 {
     if (uart >= ARRAY_SIZE(end_addrs))
         return 0;
@@ -329,5 +329,11 @@ unsigned usb_uart_send(unsigned uart, void * data, unsigned len)
 
     usbd_poll(usbd_dev);
 
-    return usbd_ep_write_packet(usbd_dev, w_addr, data, len);
+    unsigned r = usbd_ep_write_packet(usbd_dev, w_addr, data, len);
+    /* If it's a full packet and there isn't one following, the receiving end may just sit waiting for more before reporting it.*/
+    if (flush && r == USB_DATA_PCK_SZ)
+        while (usbd_ep_write_packet(usbd_dev, w_addr, "\0", 1) <= 0)
+            usbd_poll(usbd_dev);
+
+    return r;
 }
