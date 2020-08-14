@@ -411,6 +411,11 @@ class io_board_py_t(object):
 
     def _read_line(self):
         line = self.comm.readline().strip()
+        if len(line):
+            while line[0] == 0:
+                line = line[1:]
+            while line[-1] == 0:
+                line = line[:-1]
         debug_print(b">> : %s" % line)
         return line
 
