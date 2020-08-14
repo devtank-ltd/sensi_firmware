@@ -417,9 +417,11 @@ class io_board_py_t(object):
     def _read_response(self):
         line = self._read_line()
         start = time.time()
+        drain_lines = []
         while line != type(self).__LOG_START_SPACER:
+            drain_lines += [line]
             if (time.time() - start) > type(self).__READTIME:
-                raise ValueError("Comms read took too long.")
+                raise ValueError("Comms read to start took too long. %u lines : %s" % (len(drain_lines), str(drain_lines)))
             line = self._read_line()
 
         line = self._read_line()
@@ -427,7 +429,7 @@ class io_board_py_t(object):
 
         while line != type(self).__LOG_END_SPACER:
             if (time.time() - start) > type(self).__READTIME:
-                raise ValueError("Comms read took too long.")
+                raise ValueError("Comms read to end took too long. %u lines : %s" % (len(data_lines), str(data_lines)))
             data_lines += [line]
             line = self._read_line()
 
