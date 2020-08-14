@@ -168,10 +168,14 @@ void pwm_cb()
         {
             pos++;
             if (*pos)
+            {
                 duty += ((*pos++)-'0') * 10;
-            if (*pos)
-                duty += ((*pos++)-'0') * 1;
+                if (*pos)
+                    duty += ((*pos++)-'0') * 1;
+            }
         }
+        if (duty > PWM_MAX)
+            duty = PWM_MAX;
         pwm_set(freq, duty);
     }
 

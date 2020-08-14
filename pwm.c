@@ -56,7 +56,7 @@ void pwm_set(unsigned freq, unsigned duty)
 {
     timer_set_period(PWM_TIMER, 48000000/48/freq);
 
-    timer_set_oc_value(PWM_TIMER, PWM_TIMER_CH, 48000000/48/freq * duty / 10000);
+    timer_set_oc_value(PWM_TIMER, PWM_TIMER_CH, 48000000/48/freq * duty / PWM_MAX);
 
     timer_set_counter(PWM_TIMER, 0);
 

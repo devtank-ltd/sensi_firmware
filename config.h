@@ -20,6 +20,7 @@
 #define TIMER3_PRIORITY 3
 #define PPS_PRIORITY 1
 
+#define PWM_MAX 10000
 
 #define ARRAY_SIZE(_a) (sizeof(_a)/sizeof(_a[0]))
 
