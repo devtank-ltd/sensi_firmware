@@ -28,8 +28,8 @@ static void log_msgv(const char *s, va_list ap)
     char log_buffer[LOG_LINELEN];
     unsigned len = vsnprintf(log_buffer, LOG_LINELEN, s, ap);
     log_buffer[LOG_LINELEN-1] = 0;
-    if (len > LOG_LINELEN)
-        len = LOG_LINELEN;
+    if (len > LOG_LINELEN-1)
+        len = LOG_LINELEN-1;
 
     if (log_async_log)
     {
@@ -54,8 +54,8 @@ void log_errorv(const char *s, va_list ap)
     char log_buffer[LOG_LINELEN];
     unsigned len = vsnprintf(log_buffer, LOG_LINELEN, s, ap);
     log_buffer[LOG_LINELEN-1] = 0;
-    if (len > LOG_LINELEN)
-        len = LOG_LINELEN;
+    if (len > LOG_LINELEN-1)
+        len = LOG_LINELEN-1;
 
     if (log_async_log)
     {
