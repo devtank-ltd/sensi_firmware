@@ -9,6 +9,7 @@
 #include <libopencm3/usb/usbd.h>
 #include <libopencm3/usb/cdc.h>
 #include <libopencm3/stm32/crs.h>
+#include <libopencm3/stm32/st_usbfs.h>
 
 #include "log.h"
 #include "cmd.h"
@@ -332,8 +333,11 @@ unsigned usb_uart_send(unsigned uart, void * data, unsigned len, bool flush)
     unsigned r = usbd_ep_write_packet(usbd_dev, w_addr, data, len);
     /* If it's a full packet and there isn't one following, the receiving end may just sit waiting for more before reporting it.*/
     if (flush && r == USB_DATA_PCK_SZ)
-        while (usbd_ep_write_packet(usbd_dev, w_addr, "\0", 1) <= 0)
+    {
+        while ((*USB_EP_REG(w_addr & 0x7F) & USB_EP_TX_STAT) == USB_EP_TX_STAT_VALID)
             usbd_poll(usbd_dev);
+        usbd_ep_write_packet(usbd_dev, w_addr, NULL, 0);
+    }
 
     return r;
 }
