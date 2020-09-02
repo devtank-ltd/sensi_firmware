@@ -236,6 +236,9 @@ def read_eeprom_from(f):
     header = header[:last_line_end]
     try:
         header_data = yaml.load(header)
+    except yaml.reader.ReaderError as e:
+        print("Failed to read EEPROM header:", e, file=sys.stderr)
+        return None
     except yaml.parser.ParserError as e:
         print("Failed to parse EEPROM header:", e, file=sys.stderr)
         return None
