@@ -382,9 +382,15 @@ class io_board_py_t(object):
             conf_inf = sys_path.rfind(":")
             own_port = sys_path.rfind(".", 0, conf_inf)
             parent_port = sys_path.rfind(".", 0, own_port)
-            backplane_port = int(sys_path[parent_port+1:own_port])
-            # Card EEPROMs are layed out spi0.2 and on.
-            eeprom_path = "/sys/bus/spi/devices/spi0.%u/eeprom" % (2 + (backplane_port - 1))
+            backplane_port = int(sys_path[parent_port+1:own_port]) - 1
+
+            # Card EEPROMs are read to /tmp/dt_card_slotX files
+            eeprom_path = "/tmp/dt_card_slot%u" % backplane_port
+
+            if not os.path.exists(eeprom_path):
+                # Fall back to old reading of EEPROM from device file
+                # Card EEPROMs are layed out spi0.2 and on.
+                eeprom_path = "/sys/bus/spi/devices/spi0.%u/eeprom" % (2 + backplane_port)
 
             try:
                 with open(eeprom_path, "rb") as f:
