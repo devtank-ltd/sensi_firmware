@@ -243,7 +243,7 @@ def read_eeprom_from(f):
         print("Failed to parse EEPROM header:", e, file=sys.stderr)
         return None
 
-    if header_data.get("VERSION", None) != 1:
+    if header_data.get("VERSION", None) != 2:
         print("Unknown EEPROM header format.", header_data.get("VERSION", "MISSING"), file=sys.stderr)
         return None
 
@@ -331,7 +331,7 @@ class io_board_py_t(object):
                  }
 
     # Scale then offset
-    _ADC_CORRECTION_MAP = {"F1_OUT" : (0.079517571347618, -58.4115245515909)}
+    _ADC_CORRECTION_MAP = {"F1_OUT" : (0.004908590961834, 0.442475341214523)}
 
     def __init__(self, dev):
         self.ppss = {}
