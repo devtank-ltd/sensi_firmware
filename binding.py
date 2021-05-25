@@ -420,7 +420,7 @@ class io_board_py_t(object):
 
         for adc_name, adc_adj in cal_map.items():
             if adc_name in type(self).NAME_MAP:
-                if isinstance(adc_adj, list):
+                if isinstance(adc_adj, list) and len(adc_adj) > 2:
                     adc = getattr(self, adc_name)
                     adc.load_polynomial(adc_adj)
                 elif adc_adj[0] in type(self).__PROP_MAP:
