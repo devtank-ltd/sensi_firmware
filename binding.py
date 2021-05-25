@@ -123,8 +123,26 @@ class adc_t(io_board_prop_t):
         self._max_value = 0
         self._avg_value = 0
         self._age = 0
+        self.reset_cal()
+
+    def reset_cal(self):
         self.adc_scale  = 1
         self.adc_offset = 0
+        self._func= lambda x : x * self.adc_scale + self.adc_offset
+
+    def load_polynomial(self, constants):
+        s = "lambda x:"
+        for n in range(0, len(constants)):
+            pwr = len(constants) - 1 - n
+            constant = constants[n]
+            s += "%G" % constant
+            if pwr > 1:
+                s += "*pow(x,%u)" % pwr
+            elif pwr == 1:
+                s += "*x"
+            if n + 1 < len(constants):
+                s += " + "
+        self._func = eval(s)
 
     def update_values(self):
         parent = self.parent()
@@ -138,9 +156,9 @@ class adc_t(io_board_prop_t):
         parts = r[3].split(b':')[1].split(b'/')
         raw_avg_value = float(parts[0].strip()) / int(parts[1].strip())
         self._age = time.time()
-        self._avg_value = raw_avg_value * self.adc_scale + self.adc_offset
-        self._min_value = raw_min_value * self.adc_scale + self.adc_offset
-        self._max_value = raw_max_value * self.adc_scale + self.adc_offset
+        self._avg_value = self._func(raw_avg_value)
+        self._min_value = self._func(raw_min_value)
+        self._max_value = self._func(raw_max_value)
 
     def _refresh(self):
         if not self._age or (time.time() - self._age) > 1:
@@ -402,7 +420,10 @@ class io_board_py_t(object):
 
         for adc_name, adc_adj in cal_map.items():
             if adc_name in type(self).NAME_MAP:
-                if adc_adj[0] in type(self).__PROP_MAP:
+                if isinstance(adc_adj, list):
+                    adc = getattr(self, adc_name)
+                    adc.load_polynomial(adc_adj)
+                elif adc_adj[0] in type(self).__PROP_MAP:
                     renamedname = adc_name
                     typename = adc_adj[0]
                     index    = int(adc_adj[1])
