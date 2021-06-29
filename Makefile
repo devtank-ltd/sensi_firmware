@@ -7,7 +7,7 @@ OBJDUMP = $(TOOLCHAIN)-objdump
 SIZE = $(TOOLCHAIN)-size
 
 #Target CPU options
-CPU_DEFINES = -mthumb -mcpu=cortex-m0 -DSTM32F0 -pedantic
+CPU_DEFINES = -mfloat-abi=hard -mfpu=fpv4-sp-d16 -mthumb -mcpu=cortex-m4 -DSTM32F3 -pedantic
 
 GIT_COMMITS := $(shell git rev-list --count HEAD)
 GIT_COMMIT := $(shell git log -n 1 --format="%h-%f")
@@ -23,11 +23,11 @@ CFLAGS		+= -DGIT_VERSION=\"[$(GIT_COMMITS)]-$(GIT_COMMIT)\"
 
 INCLUDE_PATHS += -Ilibs/libopencm3/include -I.
 
-LINK_SCRIPT = libs/libopencm3/lib/stm32/f0/stm32f07xzb.ld
+LINK_SCRIPT = libs/libopencm3/lib/stm32/f3/stm32f303xc.ld
 
 LINK_FLAGS =  -Llibs/libopencm3/lib --static -nostartfiles
-LINK_FLAGS += -Llibs/libopencm3/lib/stm32/f0
-LINK_FLAGS += -T$(LINK_SCRIPT) -lopencm3_stm32f0
+LINK_FLAGS += -Llibs/libopencm3/lib/stm32/f3
+LINK_FLAGS += -T$(LINK_SCRIPT) -lopencm3_stm32f3
 LINK_FLAGS += -Wl,--start-group -lc -lgcc -lnosys -Wl,--end-group -Wl,--gc-sections
 LINK_FLAGS += $(CPU_DEFINES)
 

@@ -13,8 +13,15 @@
 #include "adcs.h"
 #include "pinmap.h"
 
+typedef struct
+{
+    uint8_t adc;
+    uint8_t channel;
+} adc_channel_pair_t;
 
-static uint8_t adc_channel_array[] = ADC_CHANNELS;
+static const adc_channel_pair_t adc_channels[] = ADCS_CHANNEL;
+
+#define ADC_CHIP(_index_) ((uint32_t[]){ADC1, ADC2})[_index_];
 
 typedef struct
 {
@@ -25,17 +32,30 @@ typedef struct
 } adc_channel_info_t;
 
 
-static volatile adc_channel_info_t adc_channel_info[ARRAY_SIZE(adc_channel_array)] = {{0}};
+const port_n_pins_t port_n_pins[] = ADCS_PORT_N_PINS;
 
-static volatile adc_channel_info_t adc_channel_info_cur[ARRAY_SIZE(adc_channel_array)] = {{0}};
+static volatile adc_channel_info_t adc_channel_info[ARRAY_SIZE(port_n_pins)] = {{0}};
 
-static volatile uint16_t last_value[ARRAY_SIZE(adc_channel_array)] = {0};
+static volatile adc_channel_info_t adc_channel_info_cur[ARRAY_SIZE(port_n_pins)] = {{0}};
+
+static volatile uint16_t last_value[ARRAY_SIZE(port_n_pins)] = {0};
 
 static unsigned call_count = 0;
-static unsigned adc_index = ARRAY_SIZE(adc_channel_array) - 1;
+
+static uint8_t current_channel = 0;
 
 
-const port_n_pins_t port_n_pins[] = ADCS_PORT_N_PINS;
+static void adc_init(int adc)
+{
+    adc_calibrate(adc);
+    adc_set_single_conversion_mode(adc);
+    adc_disable_external_trigger_regular(adc);
+    adc_set_right_aligned(adc);
+    adc_set_sample_time_on_all_channels(adc, ADC_SMPR_SMP_181DOT5CYC);
+    adc_set_resolution(adc, ADC_CFGR1_RES_12_BIT);
+    adc_power_on(adc);
+}
+
 
 void adcs_init()
 {
@@ -48,18 +68,22 @@ void adcs_init()
                         port_n_pins[n].pins);
     }
 
-    rcc_peripheral_enable_clock(&RCC_APB2ENR, RCC_APB2ENR_ADCEN);
+    rcc_periph_clock_enable(RCC_ADC12);
 
     adc_power_off(ADC1);
-    adc_set_clk_source(ADC1, ADC_CLKSOURCE_ADC);
-    adc_calibrate(ADC1);
-    adc_set_operation_mode(ADC1, ADC_MODE_SEQUENTIAL);
-    adc_set_continuous_conversion_mode(ADC1);
-    adc_set_right_aligned(ADC1);
-    adc_set_regular_sequence(ADC1, ARRAY_SIZE(adc_channel_array), adc_channel_array);
-    adc_set_sample_time_on_all_channels(ADC1, ADC_SMPTIME_013DOT5);
-    adc_set_resolution(ADC1, ADC_RESOLUTION_12BIT);
-    adc_power_on(ADC1);
+    adc_power_off(ADC2);
+
+    adc_set_clk_prescale(ADC1, ADC_CCR_CKMODE_DIV2);
+    adc_init(ADC1);
+    adc_init(ADC2);
+
+    const adc_channel_pair_t * pair = &adc_channels[0];
+
+    current_channel = pair->channel;
+    uint32_t adc_chip = ADC_CHIP(pair->adc);
+
+    adc_set_regular_sequence(adc_chip, 1, &current_channel);
+    adc_start_conversion_regular(adc_chip);
 }
 
 
@@ -67,44 +91,49 @@ void adcs_do_samples()
 {
     call_count++;
 
-    unsigned state = call_count % 2;
+    unsigned adc_index = call_count % ARRAY_SIZE(adc_channels);
 
-    switch(state)
+    const adc_channel_pair_t * pair = &adc_channels[adc_index];
+
+    uint32_t adc_chip = ADC_CHIP(pair->adc);
+
+    if (adc_eoc(adc_chip))
     {
-        case 0: adc_start_conversion_regular(ADC1); break;
-        case 1:
-        {
-            if (adc_eoc(ADC1))
-            {
-                uint32_t adc = adc_read_regular(ADC1);
+        uint32_t adc = adc_read_regular(adc_chip);
 
-                volatile adc_channel_info_t * channel_info = &adc_channel_info[adc_index];
+        volatile adc_channel_info_t * channel_info = &adc_channel_info[adc_index];
 
-                if (adc > channel_info->max_value)
-                    channel_info->max_value = adc;
+        if (adc > channel_info->max_value)
+            channel_info->max_value = adc;
 
-                if (adc < channel_info->min_value)
-                    channel_info->min_value = adc;
+        if (adc < channel_info->min_value)
+            channel_info->min_value = adc;
 
-                channel_info->total_value += adc;
-                channel_info->count ++;
-                last_value[adc_index]   = adc;
+        channel_info->total_value += adc;
+        channel_info->count ++;
+        last_value[adc_index]   = adc;
 
-            }
-            else log_debug(DEBUG_ADC, "ADC sampling not complete!");
-                adc_index = (adc_index + 1) % ARRAY_SIZE(adc_channel_array);
-        }
+        /* Start next ADC sample */
+        adc_index = (call_count + 1) % ARRAY_SIZE(adc_channels);
+        pair = &adc_channels[adc_index];
+
+        current_channel = pair->channel;
+        adc_chip = ADC_CHIP(pair->adc);
+
+        adc_set_regular_sequence(adc_chip, 1, &current_channel);
+        adc_start_conversion_regular(adc_chip);
     }
+    else log_debug(DEBUG_ADC, "ADC sampling not done");
 }
 
 
 void adcs_second_boardary()
 {
-    unsigned sample_count = call_count / ARRAY_SIZE(adc_channel_array) / 2;
+    unsigned sample_count = call_count / ARRAY_SIZE(port_n_pins) / 2;
 
     log_debug(DEBUG_ADC, "ADCS SPS %u", sample_count);
 
-    for(unsigned n = 0; n < ARRAY_SIZE(adc_channel_array); n++)
+    for(unsigned n = 0; n < ARRAY_SIZE(port_n_pins); n++)
     {
         volatile adc_channel_info_t * channel_info = &adc_channel_info[n];
 
@@ -125,13 +154,13 @@ void adcs_second_boardary()
 
 unsigned adcs_get_count()
 {
-    return ARRAY_SIZE(adc_channel_array);
+    return ARRAY_SIZE(port_n_pins);
 }
 
 
 unsigned  adcs_get_last(unsigned adc)
 {
-    if (adc >= ARRAY_SIZE(adc_channel_array))
+    if (adc >= ARRAY_SIZE(port_n_pins))
         return 0;
 
     return last_value[adc];
@@ -140,7 +169,7 @@ unsigned  adcs_get_last(unsigned adc)
 
 unsigned  adcs_get_tick(unsigned adc)
 {
-    if (adc >= ARRAY_SIZE(adc_channel_array))
+    if (adc >= ARRAY_SIZE(port_n_pins))
         return 0;
 
     return adc_channel_info[adc].count;
@@ -149,12 +178,13 @@ unsigned  adcs_get_tick(unsigned adc)
 
 void adcs_adc_log(unsigned adc)
 {
-    if (adc >= ARRAY_SIZE(adc_channel_array))
+    if (adc >= ARRAY_SIZE(port_n_pins))
         return;
 
     volatile adc_channel_info_t * channel_info = &adc_channel_info_cur[adc];
+    const adc_channel_pair_t * pair = &adc_channels[adc];
 
-    log_out("ADC : %u (Channel : %u)", adc + 1, adc_channel_array[adc]);
+    log_out("ADC : %u (ADC:%u Ch:%u)", adc + 1, pair->adc, pair->channel);
     log_out("Min : %u", channel_info->min_value);
     log_out("Max : %u", channel_info->max_value);
     log_out("Avg : %"PRIu64" / %u", channel_info->total_value, channel_info->count);

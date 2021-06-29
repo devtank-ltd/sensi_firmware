@@ -7,9 +7,8 @@
 #include <libopencm3/stm32/gpio.h>
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/usb/usbd.h>
-#include <libopencm3/usb/cdc.h>
-#include <libopencm3/stm32/crs.h>
 #include <libopencm3/stm32/st_usbfs.h>
+#include <libopencm3/usb/cdc.h>
 
 #include "log.h"
 #include "cmd.h"
@@ -294,24 +293,39 @@ static void usb_set_config_cb(usbd_device *usb_dev,
 
 void usb_init()
 {
-    crs_autotrim_usb_enable();
-    rcc_set_usbclk_source(RCC_HSI48);
-
-    usbd_dev = usbd_init(&st_usbfs_v2_usb_driver,
+    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11|GPIO12);
+    gpio_set_af(GPIOA, GPIO_AF14, GPIO11|GPIO12);
+    usbd_dev = usbd_init(&st_usbfs_v1_usb_driver,
                          &usb_dev_desc,
                          &usb_config,
                          usb_strings, ARRAY_SIZE(usb_strings),
                          usbd_control_buffer, sizeof(usbd_control_buffer));
 
     usbd_register_set_config_callback(usbd_dev, usb_set_config_cb);
-    nvic_set_priority(NVIC_USB_IRQ, 2);
-    nvic_enable_irq(NVIC_USB_IRQ);
+    nvic_enable_irq(NVIC_USB_HP_CAN1_TX_IRQ);
+    nvic_enable_irq(NVIC_USB_LP_CAN1_RX0_IRQ);
+    nvic_enable_irq(NVIC_USB_WKUP_A_IRQ);
 }
 
 
 void usb_isr()
 {
     usbd_poll(usbd_dev);
+}
+
+void usb_wkup_a_isr()
+{
+    usb_isr();
+}
+
+void usb_hp_can1_tx_isr()
+{
+    usb_isr();
+}
+
+void usb_lp_can1_rx0_isr()
+{
+    usb_isr();
 }
 
 

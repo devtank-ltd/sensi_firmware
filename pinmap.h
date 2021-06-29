@@ -16,7 +16,7 @@ typedef struct
 
 #define LED_PORT_N_PINS           \
 {                                 \
-    {GPIOA, GPIO5},  /* LED 0 */ \
+    {GPIOB, GPIO1},  /* LED 0 */ \
 }
 
 
@@ -29,46 +29,62 @@ typedef struct
     {GPIOA, GPIO11},    /* USB DM */  \
 }
 
-#define ADCS_PORT_N_PINS                            \
-{                                                   \
-    {GPIOA, GPIO0},      /* ADC 1  = Channel 0  */  \
-    {GPIOA, GPIO2},      /* ADC 2  = Channel 2  */  \
-    {GPIOA, GPIO3},      /* ADC 3  = Channel 3  */  \
-    {GPIOA, GPIO4},      /* ADC 4  = Channel 4  */  \
-    {GPIOA, GPIO6},      /* ADC 5  = Channel 6  */  \
-    {GPIOA, GPIO7},      /* ADC 6  = Channel 7  */  \
-    {GPIOB, GPIO1},      /* ADC 7  = Channel 9  */  \
-    {GPIOC, GPIO0},      /* ADC 8  = Channel 10 */  \
-    {GPIOC, GPIO1},      /* ADC 9  = Channel 11 */  \
-    {GPIOC, GPIO2},      /* ADC 10 = Channel 12 */  \
-    {GPIOC, GPIO3},      /* ADC 11 = Channel 13 */  \
-    {GPIOC, GPIO4},      /* ADC 12 = Channel 14 */  \
-    {GPIOC, GPIO5},      /* ADC 13 = Channel 15 */  \
+
+#define ADCS_PORT_N_PINS                           \
+{                                                  \
+    {GPIOA, GPIO0},      /* ADC 0  = ADC1_IN1  */  \
+    {GPIOA, GPIO2},      /* ADC 1  = ADC1_IN3  */  \
+    {GPIOA, GPIO3},      /* ADC 2  = ADC1_IN4  */  \
+    {GPIOA, GPIO4},      /* ADC 3  = ADC1_IN5  */  \
+    {GPIOA, GPIO6},      /* ADC 4  = ADC2_IN3  */  \
+    {GPIOA, GPIO7},      /* ADC 5  = ADC2_IN4  */  \
+    {GPIOA, GPIO5},      /* ADC 6  = ADC2_IN2  */  \
+    {GPIOC, GPIO0},      /* ADC 7  = ADC12_IN6 */  \
+    {GPIOC, GPIO1},      /* ADC 8  = ADC12_IN7 */  \
+    {GPIOC, GPIO2},      /* ADC 9  = ADC12_IN8 */  \
+    {GPIOC, GPIO3},      /* ADC 10 = ADC12_IN9 */  \
+    {GPIOC, GPIO4},      /* ADC 11 = ADC2_IN5  */  \
+    {GPIOC, GPIO5},      /* ADC 12 = ADC2_IN11 */  \
 }
 
+
 /* schematics -> Connected to
- *     ADC1  -> F4_OUT
- *     ADC2  -> F3_OUT
- *     ADC3  -> F2_OUT
- *     ADC4  -> F1_OUT
- *     ADC5  -> TH2_OUT
- *     ADC6  -> AIN_BUF_CH3
- *     ADC7  -> AIN_BUF_CH1
- *     ADC8  -> I_MON
- *     ADC9  -> TH4_OUT
- *     ADC10 -> TH3_OUT
- *     ADC11 -> TH1_OUT
- *     ADC12 -> AIN_BUF_CH4
- *     ADC13 -> AIN_BUF_CH2
+ * PA0 ADC1_IN1  -> F4_OUT
+ * PA2 ADC1_IN3  -> F3_OUT
+ * PA3 ADC1_IN4  -> F2_OUT
+ * PA4 ADC1_IN5  -> F1_OUT
+ * PA6 ADC2_IN3  -> TH2_OUT
+ * PA7 ADC2_IN4  -> AIN_BUF_CH3
+ * PA5 ADC2_IN2  -> AIN_BUF_CH1
+ * PC0 ADC12_IN6 -> I_MON
+ * PC1 ADC12_IN7 -> TH4_OUT
+ * PC2 ADC12_IN8 -> TH3_OUT
+ * PC3 ADC12_IN9 -> TH1_OUT
+ * PC4 ADC2_IN5  -> AIN_BUF_CH4
+ * PC5 ADC2_IN11 -> AIN_BUF_CH2
  */
 
+#define ADCS_CHANNEL \
+{                    \
+    {1, 1 },         \
+    {1, 3 },         \
+    {1, 4 },         \
+    {1, 5 },         \
+    {2, 3 },         \
+    {2, 4 },         \
+    {2, 2 },         \
+    {1, 6 },         \
+    {1, 7 },         \
+    {1, 8 },         \
+    {1, 9 },         \
+    {2, 5 },         \
+    {2, 11},         \
+}
 
-#define ADC_CHANNELS  {0,2,3,4,6,7,9,10,11,12,13,14,15}
 
-
-#define UART_CHANNELS                                                                                                       \
-{                                                                                                                           \
-    { USART3, RCC_USART3, UART_3_SPEED, GPIOB, GPIO10 | GPIO11, GPIO_AF4, NVIC_USART3_4_IRQ, UART3_PRIORITY }, /* UART 0 */ \
+#define UART_CHANNELS                                                                                                            \
+{                                                                                                                                \
+    { USART3, RCC_USART3, UART_3_SPEED, GPIOB, GPIO10 | GPIO11, GPIO_AF4, NVIC_USART3_EXTI28_IRQ, UART3_PRIORITY }, /* UART 0 */ \
 }
 
 #define UART_DEBUG USART3
@@ -83,8 +99,7 @@ typedef struct
     {GPIOC, GPIO11},   /* INPUT 3 */    \
     {GPIOC, GPIO12},   /* INPUT 4 */    \
     {GPIOB, GPIO12},   /* INPUT 5 */    \
-    {GPIOC, GPIO13},   /* INPUT 6 */    \
-    {GPIOA, GPIO1},    /* INPUT 7 */    \
+    {GPIOA, GPIO1},    /* INPUT 6 */    \
 }
 
 /* schematics -> Connected to
@@ -92,9 +107,8 @@ typedef struct
  *     GPIO2 -> GPIO2_EXT
  *     GPIO3 -> GPIO3_EXT
  *     GPIO4 -> GPIO4_EXT
- *     GPIO5 -> Not Used
- *     SB1   -> GPIO5_EXT
- *     SB2   -> GPIO6_EXT
+ *     GPIO5 -> GPIO5_EXT
+ *     GPIO6 -> GPIO6_EXT
 */
 
 
@@ -106,7 +120,6 @@ typedef struct
     GPIO_PUPD_PULLUP,    /* 4 */  \
     GPIO_PUPD_PULLUP,    /* 5 */  \
     GPIO_PUPD_PULLUP,    /* 6 */  \
-    GPIO_PUPD_PULLUP,    /* 7 */  \
 }
 
 #define OUTPUTS_PORT_N_PINS              \
@@ -185,7 +198,7 @@ typedef struct
 
 #define PWM_GPIO_FUNC      \
 {                          \
-    GPIO_AF0,              \
+    GPIO_AF1,              \
 }
 
 #endif //__PINMAPS__
