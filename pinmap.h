@@ -84,7 +84,7 @@ typedef struct
 
 #define UART_CHANNELS                                                                                                            \
 {                                                                                                                                \
-    { USART3, RCC_USART3, UART_3_SPEED, GPIOB, GPIO10 | GPIO11, GPIO_AF4, NVIC_USART3_EXTI28_IRQ, UART3_PRIORITY }, /* UART 0 */ \
+    { USART3, RCC_USART3, UART_3_SPEED, GPIOB, GPIO10 | GPIO11, GPIO_AF7, NVIC_USART3_EXTI28_IRQ, UART3_PRIORITY }, /* UART 0 */ \
 }
 
 #define UART_DEBUG USART3

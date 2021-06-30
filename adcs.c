@@ -21,7 +21,7 @@ typedef struct
 
 static const adc_channel_pair_t adc_channels[] = ADCS_CHANNEL;
 
-#define ADC_CHIP(_index_) ((uint32_t[]){ADC1, ADC2})[_index_];
+#define ADC_CHIP(_index_) ((uint32_t[]){0, ADC1, ADC2})[_index_];
 
 typedef struct
 {
@@ -40,9 +40,8 @@ static volatile adc_channel_info_t adc_channel_info_cur[ARRAY_SIZE(port_n_pins)]
 
 static volatile uint16_t last_value[ARRAY_SIZE(port_n_pins)] = {0};
 
-static unsigned call_count = 0;
-
-static uint8_t current_channel = 0;
+static unsigned adc_index = 0;
+static unsigned loop_count = 0;
 
 
 static void adc_init(int adc)
@@ -51,7 +50,7 @@ static void adc_init(int adc)
     adc_set_single_conversion_mode(adc);
     adc_disable_external_trigger_regular(adc);
     adc_set_right_aligned(adc);
-    adc_set_sample_time_on_all_channels(adc, ADC_SMPR_SMP_181DOT5CYC);
+    adc_set_sample_time_on_all_channels(adc, ADC_SMPR_SMP_4DOT5CYC);
     adc_set_resolution(adc, ADC_CFGR1_RES_12_BIT);
     adc_power_on(adc);
 }
@@ -76,23 +75,11 @@ void adcs_init()
     adc_set_clk_prescale(ADC1, ADC_CCR_CKMODE_DIV2);
     adc_init(ADC1);
     adc_init(ADC2);
-
-    const adc_channel_pair_t * pair = &adc_channels[0];
-
-    current_channel = pair->channel;
-    uint32_t adc_chip = ADC_CHIP(pair->adc);
-
-    adc_set_regular_sequence(adc_chip, 1, &current_channel);
-    adc_start_conversion_regular(adc_chip);
 }
 
 
 void adcs_do_samples()
 {
-    call_count++;
-
-    unsigned adc_index = call_count % ARRAY_SIZE(adc_channels);
-
     const adc_channel_pair_t * pair = &adc_channels[adc_index];
 
     uint32_t adc_chip = ADC_CHIP(pair->adc);
@@ -114,24 +101,26 @@ void adcs_do_samples()
         last_value[adc_index]   = adc;
 
         /* Start next ADC sample */
-        adc_index = (call_count + 1) % ARRAY_SIZE(adc_channels);
+        adc_index++;
+        if (adc_index == ARRAY_SIZE(adc_channels))
+        {
+            adc_index = 0;
+            loop_count++;
+        }
         pair = &adc_channels[adc_index];
-
-        current_channel = pair->channel;
         adc_chip = ADC_CHIP(pair->adc);
-
-        adc_set_regular_sequence(adc_chip, 1, &current_channel);
-        adc_start_conversion_regular(adc_chip);
     }
-    else log_debug(DEBUG_ADC, "ADC sampling not done");
+    else log_debug(DEBUG_SYS, "ADC:%u ch:%u sampling not done", pair->adc, pair->channel);
+    adc_set_regular_sequence(adc_chip, 1, (uint8_t*)&pair->channel);
+    adc_start_conversion_regular(adc_chip);
 }
 
 
 void adcs_second_boardary()
 {
-    unsigned sample_count = call_count / ARRAY_SIZE(port_n_pins) / 2;
+    unsigned sample_count = loop_count;
 
-    log_debug(DEBUG_ADC, "ADCS SPS %u", sample_count);
+    log_debug(DEBUG_ADC, "ADCS SPS %u", loop_count);
 
     for(unsigned n = 0; n < ARRAY_SIZE(port_n_pins); n++)
     {
@@ -148,7 +137,7 @@ void adcs_second_boardary()
             log_debug(DEBUG_ADC, "ADC %u %u != %u", n, adc_channel_info_cur[n].count, sample_count);
     }
 
-    call_count = 0;
+    loop_count = 0;
 }
 
 

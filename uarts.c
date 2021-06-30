@@ -127,7 +127,7 @@ void process_debug(void)
 }
 
 
-void usart3_4_isr(void)
+void usart3_exti28_isr(void)
 {
     process_debug();
 }

@@ -88,7 +88,7 @@ size: $(TARGET_ELF)
 flash: $(TARGET_ELF)
 
 	openocd -f interface/stlink-v2-1.cfg \
-		    -f target/stm32f0x.cfg \
+		    -f board/st_nucleo_f3.cfg \
 		    -c "init" -c "reset init" \
 		    -c "flash write_image erase $(TARGET_ELF)" \
 		    -c "reset" \
@@ -111,7 +111,7 @@ cppcheck:
 
 
 debug_mon: $(TARGET_ELF)
-	openocd -f board/st_nucleo_f0.cfg -f interface/stlink-v2-1.cfg -c "init" -c "reset init"
+	openocd -f board/st_nucleo_f3.cfg -f interface/stlink-v2-1.cfg -c "init" -c "reset init"
 
 debug_gdb: $(TARGET_ELF)
 	$(TOOLCHAIN)-gdb -ex "target remote localhost:3333" -ex "monitor reset halt" -ex load $(TARGET_ELF);

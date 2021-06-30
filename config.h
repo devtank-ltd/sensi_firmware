@@ -28,7 +28,7 @@
 #define LOG_END_SPACER    "}============"
 #define LOG_SPACER        "============="
 
-#define DEFAULT_SPS 130000  // divided by (adc count * 2) is 5000
+#define DEFAULT_SPS 65000 /* 13 ADCs, so this is 5000 samples a second */
 
 #define CMD_OUT_BUF_SIZE 1024
 

@@ -27,7 +27,8 @@ volatile unsigned uptime = 0;
 void hard_fault_handler(void)
 {
     platform_raw_msg("----big fat libopen3 crash -----");
-    while(true);
+    while(true)
+        uart_rings_out_drain();
 }
 
 
@@ -39,7 +40,7 @@ void sys_tick_handler(void)
 
 
 int main(void) {
-    rcc_clock_setup_hsi(&rcc_hsi_configs[RCC_CLOCK_HSI_64MHZ]);
+    rcc_clock_setup_hsi(&rcc_hsi_configs[RCC_CLOCK_HSI_48MHZ]);
     uarts_setup();
 
     platform_raw_msg("----start----");
@@ -50,7 +51,7 @@ int main(void) {
     cmds_init();
     usb_init();
     adcs_init();
-    adcs_ex_init();
+//    adcs_ex_init();
     pwm_init();
     timers_init();
     inputs_init();
