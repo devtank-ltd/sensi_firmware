@@ -40,32 +40,43 @@ void sys_tick_handler(void)
 
 
 int main(void) {
-    rcc_clock_setup_hsi(&rcc_hsi_configs[RCC_CLOCK_HSI_48MHZ]);
+    rcc_clock_setup_pll(&rcc_hse8mhz_configs[RCC_CLOCK_HSE8_72MHZ]);
+
     uarts_setup();
 
     platform_raw_msg("----start----");
     log_out("Frequency : %lu", rcc_ahb_frequency);
     log_out("Version : %s", GIT_VERSION);
 
-    log_init();
-    cmds_init();
-    usb_init();
-    adcs_init();
-//    adcs_ex_init();
-    pwm_init();
-    timers_init();
-    inputs_init();
-    outputs_init();
-
+    rcc_periph_clock_enable(LED_PORT);
     gpio_mode_setup(LED_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_NONE, LED_PIN);
     gpio_clear(LED_PORT, LED_PIN);
-
-    uptime = 0;
 
     systick_set_reload(rcc_ahb_frequency / 8 / 1000 * TICK_MS);
     STK_CVR = 0;
     systick_counter_enable();
     systick_interrupt_enable();
+
+    /* Hold USB LP/HP low to reset USB and exit DFU. */
+    rcc_periph_clock_enable(PORT_TO_RCC(USB_GPIO_PORT));
+    gpio_mode_setup(USB_GPIO_PORT, GPIO_MODE_OUTPUT, GPIO_PUPD_PULLDOWN, USB_GPIO_PINS);
+    gpio_clear(USB_GPIO_PORT, USB_GPIO_PINS);
+    {
+        unsigned end = uptime + 1;
+        while(uptime < end)
+            __asm__("nop");
+    }
+
+    log_init();
+    usb_init();
+    cmds_init();
+    usb_init();
+    adcs_init();
+    adcs_ex_init();
+    pwm_init();
+    timers_init();
+    inputs_init();
+    outputs_init();
 
     log_out("Press 'D' for debug.");
     log_debug_mask = 0;

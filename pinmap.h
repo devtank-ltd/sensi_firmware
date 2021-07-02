@@ -29,6 +29,12 @@ typedef struct
     {GPIOA, GPIO11},    /* USB DM */  \
 }
 
+#define USB_GPIO_PORT   GPIO(USB_N_PINS, 0).port
+#define USB_DP_PIN      GPIO(USB_N_PINS, 0).pins
+#define USB_DM_PIN      GPIO(USB_N_PINS, 1).pins
+#define USB_GPIO_PINS   (USB_DP_PIN | USB_DM_PIN)
+#define USB_ALT_FUNC    GPIO_AF14
+
 
 #define ADCS_PORT_N_PINS                           \
 {                                                  \

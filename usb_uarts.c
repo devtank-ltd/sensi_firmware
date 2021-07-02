@@ -14,6 +14,7 @@
 #include "cmd.h"
 #include "uarts.h"
 #include "uart_rings.h"
+#include "pinmap.h"
 
 
 /*
@@ -293,8 +294,12 @@ static void usb_set_config_cb(usbd_device *usb_dev,
 
 void usb_init()
 {
-    gpio_mode_setup(GPIOA, GPIO_MODE_AF, GPIO_PUPD_NONE, GPIO11|GPIO12);
-    gpio_set_af(GPIOA, GPIO_AF14, GPIO11|GPIO12);
+    rcc_periph_clock_enable(PORT_TO_RCC(USB_GPIO_PORT));
+    rcc_periph_clock_enable(RCC_USB);
+
+    gpio_mode_setup(USB_GPIO_PORT, GPIO_MODE_AF, GPIO_PUPD_NONE, USB_GPIO_PINS);
+    gpio_set_af(USB_GPIO_PORT, USB_ALT_FUNC, USB_GPIO_PINS);
+
     usbd_dev = usbd_init(&st_usbfs_v1_usb_driver,
                          &usb_dev_desc,
                          &usb_config,
@@ -302,30 +307,23 @@ void usb_init()
                          usbd_control_buffer, sizeof(usbd_control_buffer));
 
     usbd_register_set_config_callback(usbd_dev, usb_set_config_cb);
+
     nvic_enable_irq(NVIC_USB_HP_CAN1_TX_IRQ);
     nvic_enable_irq(NVIC_USB_LP_CAN1_RX0_IRQ);
-    nvic_enable_irq(NVIC_USB_WKUP_A_IRQ);
 }
 
 
-void usb_isr()
+void usb_poll()
 {
     usbd_poll(usbd_dev);
 }
 
-void usb_wkup_a_isr()
-{
-    usb_isr();
+void usb_hp_can1_tx_isr() {
+    usb_poll();
 }
 
-void usb_hp_can1_tx_isr()
-{
-    usb_isr();
-}
-
-void usb_lp_can1_rx0_isr()
-{
-    usb_isr();
+void usb_lp_can1_rx0_isr() {
+    usb_poll();
 }
 
 

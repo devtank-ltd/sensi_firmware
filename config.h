@@ -4,7 +4,7 @@
 #define CMD_LINELEN 32
 #define LOG_LINELEN 64
 
-#define TICK_MS 1000
+#define TICK_MS 500
 
 #ifndef DOXYGEN
 #define PRINTF_FMT_CHECK(_fmt_arg, _el_arg)  __attribute__ ((format (printf, _fmt_arg, _el_arg)))
