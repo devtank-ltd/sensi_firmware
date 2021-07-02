@@ -110,7 +110,7 @@ void adcs_do_samples()
         pair = &adc_channels[adc_index];
         adc_chip = ADC_CHIP(pair->adc);
     }
-    else log_debug(DEBUG_SYS, "ADC:%u ch:%u sampling not done", pair->adc, pair->channel);
+    else log_debug(DEBUG_ADC, "ADC:%u ch:%u sampling not done", pair->adc, pair->channel);
     adc_set_regular_sequence(adc_chip, 1, (uint8_t*)&pair->channel);
     adc_start_conversion_regular(adc_chip);
 }
