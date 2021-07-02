@@ -109,12 +109,12 @@ typedef struct
 }
 
 /* schematics -> Connected to
- *     GPIO1 -> GPI01_EXT
- *     GPIO2 -> GPIO2_EXT
- *     GPIO3 -> GPIO3_EXT
- *     GPIO4 -> GPIO4_EXT
- *     GPIO5 -> GPIO5_EXT
- *     GPIO6 -> GPIO6_EXT
+ *     PA15 GPIO1 -> GPI01_EXT
+ *     PC10 GPIO2 -> GPIO2_EXT
+ *     PC11 GPIO3 -> GPIO3_EXT
+ *     PC12 GPIO4 -> GPIO4_EXT
+ *     PB12 GPIO5 -> GPIO5_EXT
+ *     PA1  GPIO6 -> GPIO6_EXT
 */
 
 
@@ -137,10 +137,10 @@ typedef struct
 }
 
 /* schematics -> Connected to
- *   HS_OUT1 -> HS_CTRL_SW1
- *   HS_OUT3 -> HS_CTRL_SW3
- *   HS_OUT4 -> HS_CTRL_SW4
- *   RL1     -> RL1_OUT
+ *   PA10 HS_OUT1 -> HS_CTRL_SW1
+ *   PD2  HS_OUT3 -> HS_CTRL_SW3
+ *   PB8  HS_OUT4 -> HS_CTRL_SW4
+ *   PB9  RL1     -> RL1_OUT
  *
  *   HS_OUT2 is the PWM.
 */
