@@ -80,7 +80,7 @@ $(OBJECTS): $(BUILD_DIR)%.o: %.c $(BUILD_DIR).git.$(GIT_COMMIT)
 	$(CC) $(CFLAGS) $(INCLUDE_PATHS) $< -o $@
 
 $(LIBOPENCM3) :
-	$(MAKE) -C libs/libopencm3 TARGETS=stm32/f0
+	$(MAKE) -C libs/libopencm3 TARGETS=stm32/f3
 
 size: $(TARGET_ELF)
 	$(SIZE) $(TARGET_ELF)
