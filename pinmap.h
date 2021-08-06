@@ -41,7 +41,7 @@ typedef struct
     {GPIOA, GPIO0},      /* ADC 0  = ADC1_IN1  */  \
     {GPIOA, GPIO2},      /* ADC 1  = ADC1_IN3  */  \
     {GPIOA, GPIO3},      /* ADC 2  = ADC1_IN4  */  \
-    {GPIOA, GPIO4},      /* ADC 3  = ADC1_IN5  */  \
+    {GPIOA, GPIO4},      /* ADC 3  = ADC2_IN1  */  \
     {GPIOA, GPIO6},      /* ADC 4  = ADC2_IN3  */  \
     {GPIOA, GPIO7},      /* ADC 5  = ADC2_IN4  */  \
     {GPIOA, GPIO5},      /* ADC 6  = ADC2_IN2  */  \
@@ -58,7 +58,7 @@ typedef struct
  * PA0 ADC1_IN1  -> F4_OUT
  * PA2 ADC1_IN3  -> F3_OUT
  * PA3 ADC1_IN4  -> F2_OUT
- * PA4 ADC1_IN5  -> F1_OUT
+ * PA4 ADC2_IN1  -> F1_OUT
  * PA6 ADC2_IN3  -> TH2_OUT
  * PA7 ADC2_IN4  -> AIN_BUF_CH3
  * PA5 ADC2_IN2  -> AIN_BUF_CH1
@@ -75,7 +75,7 @@ typedef struct
     {1, 1 },         \
     {1, 3 },         \
     {1, 4 },         \
-    {1, 5 },         \
+    {2, 1 },         \
     {2, 3 },         \
     {2, 4 },         \
     {2, 2 },         \
