@@ -204,7 +204,7 @@ typedef struct
 
 #define PWM_GPIO_FUNC      \
 {                          \
-    GPIO_AF1,              \
+    GPIO_AF2,              \
 }
 
 #endif //__PINMAPS__
