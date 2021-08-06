@@ -12,6 +12,8 @@ static unsigned pwm_freq = 100;
 static unsigned pwm_duty = 0;
 
 
+#define CPU_MHZ (rcc_ahb_frequency / 1000000)
+
 void pwm_init()
 {
     rcc_periph_clock_enable(RCC_PWM_TIMER);
@@ -22,12 +24,13 @@ void pwm_init()
         TIM_CR1_CKD_CK_INT,
         TIM_CR1_CMS_EDGE,
         TIM_CR1_DIR_UP);
-    timer_set_prescaler(PWM_TIMER, 48);
+
+    timer_set_prescaler(PWM_TIMER, CPU_MHZ);
 
     timer_enable_preload(PWM_TIMER);
     timer_continuous_mode(PWM_TIMER);
 
-    timer_set_period(PWM_TIMER,48000000/48);
+    timer_set_period(PWM_TIMER, 1000000);
 
     timer_disable_oc_output(PWM_TIMER, PWM_TIMER_CH);
     timer_set_oc_mode(PWM_TIMER, PWM_TIMER_CH, TIM_OCM_PWM1);
@@ -54,9 +57,9 @@ void pwm_init()
 
 void pwm_set(unsigned freq, unsigned duty)
 {
-    timer_set_period(PWM_TIMER, 48000000/48/freq);
+    timer_set_period(PWM_TIMER, 1000000/freq);
 
-    timer_set_oc_value(PWM_TIMER, PWM_TIMER_CH, 48000000/48/freq * duty / PWM_MAX);
+    timer_set_oc_value(PWM_TIMER, PWM_TIMER_CH, 1000000/freq * duty / PWM_MAX);
 
     timer_set_counter(PWM_TIMER, 0);
 
