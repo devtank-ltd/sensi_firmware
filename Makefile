@@ -57,7 +57,7 @@ TARGET_BIN = $(TARGET_ELF:%.elf=%.bin)
 TARGET_DFU = $(TARGET_ELF:%.elf=%.dfu)
 
 
-LIBOPENCM3 := libs/libopencm3/lib/libopencm3_stm32f0.a
+LIBOPENCM3 := libs/libopencm3/lib/libopencm3_stm32f3.a
 
 
 default: $(TARGET_ELF)
@@ -67,15 +67,13 @@ $(BUILD_DIR).git.$(GIT_COMMIT):
 	rm -f $(BUILD_DIR).git.*
 	touch $@
 
-$(BUILD_DIR)main.o : $(LIBOPENCM3)
-
 $(TARGET_ELF): $(LIBS) $(OBJECTS) $(LINK_SCRIPT)
 	$(CC) $(OBJECTS) $(LINK_FLAGS) -o $(TARGET_ELF)
 
 $(TARGET_BIN): $(TARGET_ELF)
 	$(OBJCOPY) -O binary $< $@
 
-$(OBJECTS): $(BUILD_DIR)%.o: %.c $(BUILD_DIR).git.$(GIT_COMMIT)
+$(OBJECTS): $(BUILD_DIR)%.o: %.c $(BUILD_DIR).git.$(GIT_COMMIT) $(LIBOPENCM3)
 	mkdir -p `dirname $@`
 	$(CC) $(CFLAGS) $(INCLUDE_PATHS) $< -o $@
 
